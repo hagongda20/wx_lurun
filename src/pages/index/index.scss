@@ -1,0 +1,52 @@
+.login {
+    padding:60px ;
+
+    //vertical-align: center;
+    .company {
+      margin-bottom: 20px;
+      //text-align: center;
+      /*
+      .label {
+        font-size: 24px;
+        
+      }*/
+  
+      .radio-group {
+        margin: 30px 0;
+        
+        .radio {
+          margin-right: 60px;
+        }
+      }
+    }
+  
+    .form {
+      .input-item {
+        margin-bottom: 10px;
+        /*
+        .label {
+          font-size: 24px;
+          display: inline-block;
+          width: 80px;
+        }*/
+  
+        .input {
+          flex: 1;
+          height: 90px;
+          line-height: 80px;
+          border: 1px solid #465360;
+          padding: 0 10px;
+          border-radius: 8px;
+        }
+        
+
+        
+      }
+      .submit-btn{
+        margin-top: 30px;
+      }
+  
+      
+    }
+  }
+  

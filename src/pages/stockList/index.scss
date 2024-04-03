@@ -1,0 +1,38 @@
+.stock-detail {
+  padding: 20px;
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+
+    .info {
+      flex: 1;
+
+      .info-text {
+        margin-bottom: 5px;
+      }
+    }
+
+    .revoke-btn {
+      width: 80px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      background-color: #ff6c6c;
+      color: #fff;
+      border-radius: 5px;
+    }
+  }
+}
