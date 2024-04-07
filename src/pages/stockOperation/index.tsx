@@ -11,6 +11,7 @@ const InventoryList: Taro.FC = () => {
   const [operationType, setOperationType] = useState<string>('出库');
   const [undoModalVisible, setUndoModalVisible] = useState(false);
   const [undoItemId, setUndoItemId] = useState('');
+  const [curItem, setCurItem] = useState({});
   const [page, setPage] = useState(1); // 当前页数
   const [pageSize, setPageSize] = useState(20); // 每页数据量
   const [totalRecords, setTotalRecords] = useState(0); // 总记录数
@@ -66,8 +67,9 @@ const InventoryList: Taro.FC = () => {
     fetchData();
   };
 
-  const handleUndo = (id: string) => {
+  const handleUndo = (id: string, item) => {
     setUndoItemId(id);
+    setCurItem(item);
     setUndoModalVisible(true);
   };
 
@@ -148,7 +150,7 @@ const InventoryList: Taro.FC = () => {
             <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
             {item.operationPerson === Taro.getStorageSync('username') && (
               <View className='actions'>
-                <Button className='action-btn' onClick={() => handleUndo(item._id)}>
+                <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
                   <AtIcon value='reload' size='18' color='#333' />
                 </Button>
               </View>
@@ -160,7 +162,20 @@ const InventoryList: Taro.FC = () => {
       <AtModal isOpened={undoModalVisible} onClose={cancelUndo}>
         <AtModalHeader>确认撤销</AtModalHeader>
         <AtModalContent>
-          确定要撤销该操作吗？
+          <View>
+            <View style={{ marginBottom: '10px' }}>
+              <Text>操作类型: {curItem && curItem.operationType}</Text>
+            </View>
+            <View style={{ marginBottom: '10px' }}>
+              <Text>操作数量: {curItem && curItem.operationQuantity}</Text>
+            </View>
+            <View style={{ marginBottom: '10px' }}>
+              <Text>操作人: {curItem && curItem.operationPerson}</Text>
+            </View>
+            <View>
+              <Text>操作时间: {curItem && curItem.operationTime}</Text>
+            </View>
+          </View>
         </AtModalContent>
         <AtModalAction>
           <Button onClick={cancelUndo}>取消</Button>
