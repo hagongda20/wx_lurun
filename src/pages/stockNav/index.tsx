@@ -37,7 +37,7 @@ const Home = () => {
         <View className='divider' />
         <AtButton className='btn' disabled onClick={handleProductClick}>一账双录</AtButton>
         <AtButton className='btn' disabled onClick={handleProductClick}>对账审核</AtButton>
-
+        <AtButton className='btn' disabled onClick={handleProductClick}>对账审核</AtButton>
       </View>
     </View>
   );
