@@ -14,11 +14,10 @@ const InboundPage = () => {
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [newQuantity, setNewQuantity] = useState<number>();
   const [curQuantity, setcurQuantity] = useState<number>();
-  const [operationRecords, setOperationRecords] = useState([]);
   const [selectedDate, setSelectedDate] = useState(getCurrentDateTimeString());
 
   const router = useRouter();
-  const { id, operate } = router.params;
+  const { id, operate, kw} = router.params;
 
   useEffect(() => {
     // 模拟根据 ID 查询商品信息，实际需要替换成云数据库查询逻辑
@@ -57,7 +56,7 @@ const InboundPage = () => {
       Taro.showToast({
         title: '请输入入库数量',
         icon: 'none',
-        duration: 2000
+        duration: 1500
       });
       return;
     }
@@ -84,8 +83,6 @@ const InboundPage = () => {
 
       // 从本地存储获取当前用户的信息
       const stockInPerson = Taro.getStorageSync('username');
-      // 获取当前时间作为操作时间
-      //const operationTime = new Date();
       // 构建入库操作记录对象
       const operationRecord = {
         productId: id,
@@ -101,23 +98,23 @@ const InboundPage = () => {
         data: operationRecord
       });
       console.log('入库操作记录已添加：', addRecordRes);
-
-
-
+      console.log('keyword:', kw);
+      
       // 入库成功后的操作，例如显示成功提示并返回上一页
       Taro.showToast({
         title: '入库成功',
         icon: 'success',
-        duration: 2000
+        duration: 1500
       });
-      Taro.eventCenter.trigger('refreshPageStockList');
+      
+      Taro.eventCenter.trigger('refreshPageStockList',kw);
       //Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
       Taro.showToast({
         title: '入库失败，请重试',
         icon: 'none',
-        duration: 2000
+        duration: 1500
       });
     }
   };
@@ -170,7 +167,7 @@ const InboundPage = () => {
       const addRecordRes = await db.collection('operationRecords').add({
         data: operationRecord
       });
-      console.log('出库操作记录已添加：', addRecordRes);
+      console.log('库操作记录已添加：', addRecordRes);
 
 
 
@@ -180,7 +177,7 @@ const InboundPage = () => {
         icon: 'success',
         duration: 2000
       });
-      Taro.eventCenter.trigger('refreshPageStockList');
+      Taro.eventCenter.trigger('refreshPageStockList',kw);
       //Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);

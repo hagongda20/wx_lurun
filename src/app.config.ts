@@ -3,7 +3,6 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/stock/index',
     'pages/stockAdd/index',
-    'pages/stockList/index',
     'pages/stockNav/index',
     'pages/stockOperation/index',
     'pages/product/index',

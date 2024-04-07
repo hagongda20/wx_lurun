@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '库存操作'
+  navigationBarTitleText: '企业管理'
 })

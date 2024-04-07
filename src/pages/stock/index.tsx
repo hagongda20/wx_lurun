@@ -1,174 +1,129 @@
 import Taro from '@tarojs/taro';
-import { View, Text, Input, Button } from '@tarojs/components';
+import { View, Text, Button, RadioGroup, Radio } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import {db} from '../../utils'
+import { db } from '../../utils';
 
 const InventoryList: Taro.FC = () => {
-  const [keyword, setKeyword] = useState('');
+  const defaultSelectedValue = '2.44';
+  const [selectedValue, setSelectedValue] = useState(defaultSelectedValue);
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // 当前库存列表查询
-  const fetchData = async () => {
+  const fetchData = async (value: string) => {
     try {
-      const countRes = await db.collection('LuRunStock').count();
+      setLoading(true);
+      let query = db.collection('LuRunStock');
+
+      // 添加搜索条件
+      query = query.where({
+        name: db.RegExp({
+          regexp: value,
+          options: 'i'
+        })
+      });
+
+      const countRes = await query.count();
       const total = countRes.total;
       console.log("当前库存商品总记录数 count:", total);
 
-      const batchSize = 20; // 每次查询的数据量
-      const batchTimes = Math.ceil(total / batchSize); // 需要分几次查询
+      const batchSize = 20;
+      const batchTimes = Math.ceil(total / batchSize);
 
       let allData = [];
       for (let i = 0; i < batchTimes; i++) {
-        const res = await db.collection('LuRunStock').skip(i * batchSize).limit(batchSize).get();
+        let batchQuery = query.skip(i * batchSize).limit(batchSize);
+        const res = await batchQuery.get();
         allData = allData.concat(res.data);
       }
 
       console.log("所有数据:", allData);
       setInventoryList(allData);
-      setLoading(false); // 数据加载完成后设置 loading 为 false
+      setLoading(false);
     } catch (error) {
       console.error('Fetch inventory error:', error);
-      setLoading(false); // 如果出现错误也要设置 loading 为 false
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-      fetchData();
-    }, []); 
+    fetchData(defaultSelectedValue);
+  }, []);
 
   //刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageStockList', fetchData);
+    Taro.eventCenter.on('refreshPageStockList', (keyword: string) => fetchData(keyword));
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
-      Taro.eventCenter.off('refreshPageStockList', fetchData);
+      Taro.eventCenter.off('refreshPageStockList', (keyword: string) => fetchData(keyword));
     };
   }, []);
 
-  // 模糊查询库存列表
-  const searchInventory = async (kw: string) => {
-      setLoading(true); // 如果出现错误也要设置 loading 为 false
-      try {
-        const kw_countRes = await db.collection('LuRunStock').where({
-          name: db.RegExp({
-            regexp: kw,
-            options: 'i'  // 'i' 表示忽略大小写
-          })
-        }).count();
-        const kw_total = kw_countRes.total;
-        console.log("关键字查询-当前库存商品总记录数 count:", kw_total);
-
-        const batchSize = 20; // 每次查询的数据量
-        const batchTimes = Math.ceil(kw_total / batchSize); // 需要分几次查询
-  
-        let kw_allData = [];
-        for (let i = 0; i < batchTimes; i++) {
-          const res = await db.collection('LuRunStock').where({
-            name: db.RegExp({
-              regexp: kw,
-              options: 'i'  // 'i' 表示忽略大小写
-            })
-          }).skip(i * batchSize).limit(batchSize).get();
-          kw_allData = kw_allData.concat(res.data);
-        }
-
-        console.log("关键字所查所有数据:", kw_allData);
-        setInventoryList(kw_allData);
-        setLoading(false); // 如果出现错误也要设置 loading 为 false
-
-      } catch (error) {
-        console.error('模糊查询失败:', error);
-        setLoading(false); // 如果出现错误也要设置 loading 为 false
-      }
-  };
-
-  // 处理关键字输入变化
-  const handleKeywordChange = (e: Taro.ChangeEvent<HTMLInputElement>) => {
-    setKeyword(e.detail.value);
-  };
-
-  // 处理搜索按钮点击事件
-  const handleSearch = () => {
-    searchInventory(keyword);
+  // 处理单选按钮变化
+  const handleRadioChange = (value: string) => {
+    setSelectedValue(value);
+    fetchData(value); // 在这里添加搜索操作
   };
 
   // 出库操作
   const handleStockOut = (id: number) => {
-    // 根据 id 进行出库操作
-    console.log(`商品 ${id} 出库`);
+    console.log(`商品 ${id} 出库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'plus'}`
+      url: `/pages/stockAdd/index?id=${id}&operate=${'plus'}&kw=${selectedValue}`
     });
-
   };
 
   // 入库操作
   const handleStockIn = (id: number) => {
-    // 根据 id 进行入库操作
-    console.log(`商品 ${id} 入库`);
+    console.log(`商品 ${id} 入库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'add'}`
+      url: `/pages/stockAdd/index?id=${id}&operate=${'add'}&kw=${selectedValue}`
     });
-
   };
-
-  // 出入库明细
-  const handleStockInOutList = (id: number) => {
-      // 根据 id 进行入库操作
-      console.log(`商品 ${id} 出入库明细`);
-      Taro.navigateTo({
-        url: `/pages/stockList/index?id=${id}`
-      });
-
-    };
 
   return (
     <View className='inventory-list'>
-      <View className='search-bar'>
-        <Input
-          className='search-input'
-          placeholder='请输入商品关键字'
-          value={keyword}
-          onInput={handleKeywordChange}
-        />
-        <Button className='search-btn' onClick={handleSearch}>
-          搜索
-        </Button>
-      </View>
+      <RadioGroup onChange={(e) => handleRadioChange(e.detail.value)} className='radio-group'>
+        <Radio value='2.44' checked={selectedValue === '2.44'} className='radio'>2.44</Radio>
+        <Radio value='2.6' checked={selectedValue === '2.6'} className='radio'>2.6</Radio>
+        <Radio value='2.7' checked={selectedValue === '2.7'} className='radio'>2.7</Radio>
+        <Radio value='2.8' checked={selectedValue === '2.8'} className='radio'>2.8</Radio>
+        <Radio value='3.05' checked={selectedValue === '3.05'} className='radio'>3.05</Radio>
+        <Radio value='3.2' checked={selectedValue === '3.2'} className='radio'>3.2</Radio>
+        <Radio value='3.6' checked={selectedValue === '3.6'} className='radio'>3.6</Radio>
+        <Radio value='4.1' checked={selectedValue === '4.1'} className='radio'>4.1</Radio>
+      </RadioGroup>
       {loading ? (
         <Text>Loading...</Text>
       ) : (
-      <View className='list'>
-        {inventoryList.map(item => (
-          <View className='item' key={item._id}>
-            <Text className='name'>{item.name}</Text>
-            <Text className='quantity'>{item.quantity}</Text>
-            <View className='actions'>
-              <Button
-                className='action-btn stock-out-btn'
-                onClick={() => handleStockOut(item._id)}
-              >
-                出库
-              </Button>
-              <Button
-                className='action-btn stock-in-btn'
-                onClick={() => handleStockIn(item._id)}
-              >
-                入库
-              </Button>
-              
-              
-              
+        <View className='list'>
+          {inventoryList.map(item => (
+            <View className='item' key={item._id}>
+              <Text className='name'>{item.name}</Text>
+              <Text className='quantity'>{item.quantity}</Text>
+              <View className='actions'>
+                <Button
+                  className='action-btn stock-out-btn'
+                  onClick={() => handleStockOut(item._id)}
+                >
+                  出库
+                </Button>
+                <Button
+                  className='action-btn stock-in-btn'
+                  onClick={() => handleStockIn(item._id)}
+                >
+                  入库
+                </Button>
+              </View>
             </View>
-          </View>
-        ))}
-      </View>)}
+          ))}
+        </View>
+      )}
     </View>
   );
 };
 
-export default InventoryList; 
+export default InventoryList;

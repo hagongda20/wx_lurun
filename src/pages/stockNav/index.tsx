@@ -28,6 +28,15 @@ const Home = () => {
         <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick}>出入库操作记录</AtButton>
         <AtButton className='btn' onClick={handleProductClick}>库存产品维护</AtButton>
+        <View className='divider' />
+
+        <AtButton className='btn' disabled onClick={handleProductClick}>工序设定</AtButton>
+        <AtButton className='btn' disabled onClick={handleProductClick}>工序查询</AtButton>
+        <AtButton className='btn' disabled onClick={handleProductClick}>工序核对</AtButton>
+        <View className='divider' />
+        <AtButton className='btn' disabled onClick={handleProductClick}>一账双录</AtButton>
+        <AtButton className='btn' disabled onClick={handleProductClick}>对账审核</AtButton>
+
       </View>
     </View>
   );
