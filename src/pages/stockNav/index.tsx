@@ -31,6 +31,7 @@ const Home = () => {
         <View className='divider' />
 
         <AtButton className='btn' disabled onClick={handleProductClick}>工序设定</AtButton>
+        <AtButton className='btn' disabled onClick={handleProductClick}>工序工作量录入</AtButton>
         <AtButton className='btn' disabled onClick={handleProductClick}>工序查询</AtButton>
         <AtButton className='btn' disabled onClick={handleProductClick}>工序核对</AtButton>
         <View className='divider' />
