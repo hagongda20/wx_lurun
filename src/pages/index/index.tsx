@@ -36,6 +36,7 @@ export default function Index() {
         // 登录成功
         Taro.setStorageSync('username', username);
         Taro.setStorageSync('password', password);
+        Taro.setStorageSync('company', company);
         Taro.setStorageSync('loginTime', new Date().getTime()); // 记录登录时间
         console.log('登录成功')
         Taro.navigateTo({
@@ -64,12 +65,14 @@ export default function Index() {
   useEffect(() => {
     const cachedUsername = Taro.getStorageSync('username');
     const cachedPassword = Taro.getStorageSync('password');
+    const cachedCompany = Taro.getStorageSync('company');
     const loginTime = Taro.getStorageSync('loginTime');
     
     // 如果有缓存的用户名和密码，并且登录时间在一周之内（604800000 毫秒为一周）
     if (cachedUsername && cachedPassword && (new Date().getTime() - loginTime) < 604800000) {
       setUsername(cachedUsername);
       setPassword(cachedPassword);
+      setCompany(cachedCompany);
     }
   }, []);
 
@@ -77,8 +80,8 @@ export default function Index() {
     <View className='login'>
       <View className='company'>
         <RadioGroup className='radio-group' onChange={handleCompanyChange} value={company}>
-          <Radio className='radio' value='鲁润' checked>鲁润</Radio>
-          <Radio className='radio' value='永和'>永和</Radio>
+          <Radio className='radio' value='鲁润' checked={company=='鲁润'}>鲁润</Radio>
+          <Radio className='radio' value='永和' checked={company=='永和'}>永和</Radio>
         </RadioGroup>
       </View>
       <View className='form'>
