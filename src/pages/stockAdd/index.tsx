@@ -2,7 +2,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import { View, Text, Input, Button, Picker } from '@tarojs/components';
 import { useState, useEffect } from 'react';
 import './index.scss';
-import {db, getCurrentDateTimeString} from '../../utils'
+import {db, getCurrentDateTimeString, getPrefixByCompany} from '../../utils'
 
 interface InventoryItem {
   _id: string;
@@ -18,6 +18,8 @@ const InboundPage = () => {
 
   const router = useRouter();
   const { id, operate, kw} = router.params;
+  // 从本地存储获取当前用户的信息
+  const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
     // 模拟根据 ID 查询商品信息，实际需要替换成云数据库查询逻辑
@@ -26,7 +28,7 @@ const InboundPage = () => {
         // 这里替换成实际的查询商品信息逻辑
         //const res = await queryItemById(id);
         console.log("商品入库：",id);
-        const res = await db.collection('LuRunStock').where({
+        const res = await db.collection(data_prefix+'stock').where({
           _id: id
         }).get();
         console.log("商品：",res);
@@ -73,7 +75,7 @@ const InboundPage = () => {
       //console.log('新增数量:', newQuantity);
       // 更新数据库中商品的数量字段
       const totolQuantity = Number(newQuantity)+Number(curQuantity);
-      const res = await db.collection('LuRunStock').doc(id).update({
+      const res = await db.collection(data_prefix+'stock').doc(id).update({
         data: {
           quantity: totolQuantity
         }
@@ -94,7 +96,7 @@ const InboundPage = () => {
       };
 
       // 将入库操作记录添加到操作记录表中
-      const addRecordRes = await db.collection('operationRecords').add({
+      const addRecordRes = await db.collection(data_prefix+'opRecords').add({
         data: operationRecord
       });
       console.log('入库操作记录已添加：', addRecordRes);
@@ -141,7 +143,7 @@ const InboundPage = () => {
       console.log('新增数量:', newQuantity);
       // 更新数据库中商品的数量字段
       const totolQuantity = Number(curQuantity)-Number(newQuantity);
-      const res = await db.collection('LuRunStock').doc(id).update({
+      const res = await db.collection(data_prefix+'stock').doc(id).update({
         data: {
           quantity: totolQuantity
         }
@@ -164,7 +166,7 @@ const InboundPage = () => {
       };
 
       // 将入库操作记录添加到操作记录表中
-      const addRecordRes = await db.collection('operationRecords').add({
+      const addRecordRes = await db.collection(data_prefix+'opRecords').add({
         data: operationRecord
       });
       console.log('库操作记录已添加：', addRecordRes);

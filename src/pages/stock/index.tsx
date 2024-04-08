@@ -2,31 +2,39 @@ import Taro from '@tarojs/taro';
 import { View, Text, Button, RadioGroup, Radio } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import { db } from '../../utils';
+import { db, getPrefixByCompany } from '../../utils';
+import _ from 'lodash';
 
 const InventoryList: Taro.FC = () => {
   const defaultSelectedValue = '2.44';
   const [selectedValue, setSelectedValue] = useState(defaultSelectedValue);
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
+  // 从本地存储获取当前用户的信息
+  const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   // 当前库存列表查询
   const fetchData = async (value: string) => {
     try {
       setLoading(true);
-      let query = db.collection('LuRunStock');
+      let query = db.collection(data_prefix+'stock');
+      query = query.where({}); // 清空所有条件
 
       // 添加搜索条件
       query = query.where({
         name: db.RegExp({
           regexp: value,
           options: 'i'
-        })
+        }),
       });
+
+      //手动删除自动添加的 _openid 条件
+      //delete query.where._openid;
+      //console.log("query:",query._query);
 
       const countRes = await query.count();
       const total = countRes.total;
-      console.log("当前库存商品总记录数 count:", total);
+      console.log("当前库存商品总记录数 count:", total, "company:",data_prefix);
 
       const batchSize = 20;
       const batchTimes = Math.ceil(total / batchSize);

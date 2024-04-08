@@ -29,3 +29,12 @@ export const getCurrentDateTimeString = () => {
 };
 
 
+//根据公司名称获取数据库标记前缀
+export const getPrefixByCompany = (company: string) => {
+  switch(company){
+    case '永和': return 'yh_';
+    case '鲁润': return 'lr_';
+    default: return ''
+  }
+}
+

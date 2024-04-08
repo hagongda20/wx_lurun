@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { View, Text, Input, Button, Radio, RadioGroup } from '@tarojs/components';
 import './index.scss';
-import { db } from '../../utils';
+import { db, getPrefixByCompany } from '../../utils';
 import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui';
 
 const InventoryList: Taro.FC = () => {
@@ -15,6 +15,9 @@ const InventoryList: Taro.FC = () => {
   const [page, setPage] = useState(1); // 当前页数
   const [pageSize, setPageSize] = useState(20); // 每页数据量
   const [totalRecords, setTotalRecords] = useState(0); // 总记录数
+
+  // 从本地存储获取当前用户的信息
+  const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
     fetchData();
@@ -30,7 +33,7 @@ const InventoryList: Taro.FC = () => {
         operationType: operationType
       };
 
-      const res = await db.collection('operationRecords')
+      const res = await db.collection(data_prefix+'opRecords')
         .where(query)
         .orderBy('operationTime', 'desc') // 按照 operationTime 字段倒序排列
         .skip((page - 1) * pageSize)
@@ -43,7 +46,7 @@ const InventoryList: Taro.FC = () => {
         setOperationList(prevList => [...prevList, ...res.data]);
       }
 
-      const totalRes = await db.collection('operationRecords')
+      const totalRes = await db.collection(data_prefix+'opRecords')
         .where(query)
         .count();
       
@@ -75,7 +78,7 @@ const InventoryList: Taro.FC = () => {
 
   const confirmUndo = async () => {
     try {
-      await db.collection('operationRecords').doc(undoItemId).remove();
+      await db.collection(data_prefix+'opRecords').doc(undoItemId).remove();
 
       setOperationList(prevList => prevList.filter(item => item._id !== undoItemId));
 
@@ -84,7 +87,7 @@ const InventoryList: Taro.FC = () => {
         throw new Error('Item to undo not found');
       }
 
-      const checkoutProduct = await db.collection('LuRunStock').doc(itemToUndo.productId).get();
+      const checkoutProduct = await db.collection(data_prefix+'stock').doc(itemToUndo.productId).get();
 
       let newQuantity = 0;
       if (itemToUndo.operationType === '入库') {
@@ -93,7 +96,7 @@ const InventoryList: Taro.FC = () => {
         newQuantity = Number(checkoutProduct?.data?.quantity) + Number(itemToUndo.operationQuantity);
       }
 
-      const res = await db.collection('LuRunStock').doc(itemToUndo.productId).update({
+      const res = await db.collection(data_prefix+'stock').doc(itemToUndo.productId).update({
         data: {
           quantity: newQuantity
         }
