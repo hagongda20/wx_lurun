@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { View, Text, Input, Button } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import {db} from '../../utils'
+import {db, getPrefixByCompany} from '../../utils'
 import {AtButton } from 'taro-ui'
 
 // 模拟库存数据
@@ -17,10 +17,12 @@ import {AtButton } from 'taro-ui'
     const [inventoryList, setInventoryList] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
+
     // 当前库存列表查询
     const fetchData = async () => {
       try {
-        const countRes = await db.collection('LuRunStock').count();
+        const countRes = await db.collection(data_prefix+'stock').count();
         const total = countRes.total;
         console.log("当前库存商品总记录数 count:", total);
   
@@ -29,7 +31,7 @@ import {AtButton } from 'taro-ui'
   
         let allData = [];
         for (let i = 0; i < batchTimes; i++) {
-          const res = await db.collection('LuRunStock').skip(i * batchSize).limit(batchSize).get();
+          const res = await db.collection(data_prefix+'stock').skip(i * batchSize).limit(batchSize).get();
           allData = allData.concat(res.data);
         }
   
@@ -61,7 +63,7 @@ import {AtButton } from 'taro-ui'
     const searchInventory = async (kw: string) => {
         setLoading(true); // 如果出现错误也要设置 loading 为 false
         try {
-          const kw_countRes = await db.collection('LuRunStock').where({
+          const kw_countRes = await db.collection(data_prefix+'stock').where({
             name: db.RegExp({
               regexp: kw,
               options: 'i'  // 'i' 表示忽略大小写
@@ -75,7 +77,7 @@ import {AtButton } from 'taro-ui'
     
           let kw_allData = [];
           for (let i = 0; i < batchTimes; i++) {
-            const res = await db.collection('LuRunStock').where({
+            const res = await db.collection(data_prefix+'stock').where({
               name: db.RegExp({
                 regexp: kw,
                 options: 'i'  // 'i' 表示忽略大小写
@@ -110,7 +112,7 @@ import {AtButton } from 'taro-ui'
     const handleDelete = async (id: string) => {
       // 根据 id 进行入库操作
       console.log(`商品 ${id} 删除`);
-      await db.collection('LuRunStock').doc(id).remove();
+      await db.collection(data_prefix+'stock').doc(id).remove();
       // 更新状态以反映删除的变化
       setInventoryList(prevList => prevList.filter(item => item._id !== id));
 

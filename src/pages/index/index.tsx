@@ -37,6 +37,7 @@ export default function Index() {
         Taro.setStorageSync('username', username);
         Taro.setStorageSync('password', password);
         Taro.setStorageSync('company', company);
+        Taro.setStorageSync('role',res.data[0].role);
         Taro.setStorageSync('loginTime', new Date().getTime()); // 记录登录时间
         console.log('登录成功')
         Taro.navigateTo({

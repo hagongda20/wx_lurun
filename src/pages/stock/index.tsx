@@ -3,7 +3,6 @@ import { View, Text, Button, RadioGroup, Radio } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
 import { db, getPrefixByCompany } from '../../utils';
-import _ from 'lodash';
 
 const InventoryList: Taro.FC = () => {
   const defaultSelectedValue = '2.44';
@@ -12,6 +11,7 @@ const InventoryList: Taro.FC = () => {
   const [loading, setLoading] = useState(true);
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
+  const role = Taro.getStorageSync('role');
 
   // 当前库存列表查询
   const fetchData = async (value: string) => {
@@ -104,7 +104,7 @@ const InventoryList: Taro.FC = () => {
         <Radio value='3.6' checked={selectedValue === '3.6'} className='radio'>3.6</Radio>
         <Radio value='4.1' checked={selectedValue === '4.1'} className='radio'>4.1</Radio>
       </RadioGroup>
-      {loading ? (
+      { loading ? (
         <Text>Loading...</Text>
       ) : (
         <View className='list'>
@@ -112,6 +112,7 @@ const InventoryList: Taro.FC = () => {
             <View className='item' key={item._id}>
               <Text className='name'>{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
+              { role == '会计'? (
               <View className='actions'>
                 <Button
                   className='action-btn stock-out-btn'
@@ -125,7 +126,8 @@ const InventoryList: Taro.FC = () => {
                 >
                   入库
                 </Button>
-              </View>
+              </View>) : (<view></view>)
+              }
             </View>
           ))}
         </View>
