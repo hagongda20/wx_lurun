@@ -1,5 +1,5 @@
 import Taro, { useRouter } from '@tarojs/taro';
-import { View, Text, Input, Button, Picker } from '@tarojs/components';
+import { View, Text, Input, Button, Picker, Textarea } from '@tarojs/components';
 import { useState, useEffect } from 'react';
 import './index.scss';
 import {db, getCurrentDateTimeString, getPrefixByCompany} from '../../utils'
@@ -8,6 +8,7 @@ interface InventoryItem {
   _id: string;
   name: string;
   quantity: number;
+  extra:string;
 }
 
 const InboundPage = () => {
@@ -15,6 +16,7 @@ const InboundPage = () => {
   const [newQuantity, setNewQuantity] = useState<number>();
   const [curQuantity, setcurQuantity] = useState<number>();
   const [selectedDate, setSelectedDate] = useState(getCurrentDateTimeString());
+  const [extraContent, setExtraContent] = useState<string>('');
 
   const router = useRouter();
   const { id, operate, kw} = router.params;
@@ -31,7 +33,7 @@ const InboundPage = () => {
         const res = await db.collection(data_prefix+'stock').where({
           _id: id
         }).get();
-        console.log("商品：",res);
+        //console.log("商品：",res);
         setItem(res?.data[0]);
         setcurQuantity(res?.data[0]?.quantity);
       } catch (error) {
@@ -47,12 +49,20 @@ const InboundPage = () => {
     setSelectedDate(e.detail.value);
   };
 
+  //处理文本区域框变化
+  const handleTextareaChange = (e: any) => {
+    const value = e.detail.value;
+    // 在这里处理文本变化，可以将其存储到 state 中或执行其他操作
+    setExtraContent(value);
+  };
+
 
   const handleQuantityChange = (e: any) => {
     const value = e.detail.value.trim();
     setNewQuantity(value);
   };
 
+  //处理入库
   const handleInbound = async () => {
     if (!newQuantity) {
       Taro.showToast({
@@ -71,8 +81,7 @@ const InboundPage = () => {
 
 
       // 执行入库操作，这里可以替换成实际的入库逻辑
-      //console.log('入库商品ID:', item?._id);
-      //console.log('新增数量:', newQuantity);
+      //console.log('入库商品ID:', item?._id, '新增数量:', newQuantity);
       // 更新数据库中商品的数量字段
       const totolQuantity = Number(newQuantity)+Number(curQuantity);
       const res = await db.collection(data_prefix+'stock').doc(id).update({
@@ -81,7 +90,7 @@ const InboundPage = () => {
         }
       });
       setcurQuantity(totolQuantity);
-      console.log(`商品 ${id} 入库成功，入库数量为 ${newQuantity}，入库后总数量为 ${totolQuantity}`);
+      console.log(`商品 ${id} 入库成功，入库数量为 ${newQuantity}，入库后总数量为 ${totolQuantity},备注为${extraContent}`);
 
       // 从本地存储获取当前用户的信息
       const stockInPerson = Taro.getStorageSync('username');
@@ -92,7 +101,8 @@ const InboundPage = () => {
         operationType: '入库',
         operationQuantity: newQuantity,
         operationTime: selectedDate,
-        operationPerson: stockInPerson
+        operationPerson: stockInPerson,
+        extra: extraContent
       };
 
       // 将入库操作记录添加到操作记录表中
@@ -121,6 +131,7 @@ const InboundPage = () => {
     }
   };
 
+  //处理出库
   const handleOutbound = async () => {
     if (!newQuantity) {
       Taro.showToast({
@@ -149,7 +160,7 @@ const InboundPage = () => {
         }
       });
       setcurQuantity(totolQuantity);
-      console.log(`商品 ${id} 出库成功，出库数量为 ${newQuantity}，出库后总数量为 ${totolQuantity}`);
+      console.log(`商品 ${id} 出库成功，出库数量为 ${newQuantity}，出库后总数量为 ${totolQuantity}，备注为${extraContent}`);
 
       // 从本地存储获取当前用户的信息
       const stockInPerson = Taro.getStorageSync('username');
@@ -162,7 +173,8 @@ const InboundPage = () => {
         operationType: '出库',
         operationQuantity: newQuantity,
         operationTime: selectedDate,
-        operationPerson: stockInPerson
+        operationPerson: stockInPerson,
+        extra: extraContent
       };
 
       // 将入库操作记录添加到操作记录表中
@@ -220,7 +232,15 @@ const InboundPage = () => {
           <View className='picker'>
             <Text>选择时间：{selectedDate || getCurrentDateTimeString()}</Text>
           </View>
-        </Picker>
+      </Picker>
+      <View className='input-container'>
+          <Text className='label'>备注：</Text>
+          <Textarea
+            className='textarea_value'
+            value={extraContent}
+            onInput={handleTextareaChange}
+          />
+      </View>
       <Button className='inbound-btn' onClick={operate=='add'? handleInbound: handleOutbound}>{operate=="add"? '执行入库':'执行出库'}</Button>
       
     </View>

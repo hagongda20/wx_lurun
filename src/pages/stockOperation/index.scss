@@ -84,5 +84,87 @@
     }
   }
 
+  .operation-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+   
+    .card {
+      width: 100%; /* 每个卡片占据整个宽度 */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: rgb(220, 247, 225);
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        background-color: #c7f5cf;
+        font-weight: bold;
+        border-radius: 4px;
+        .productName {
+          font-size: 28px; /* 字体大小设置为 28px */
+          font-weight: bold;
+          width: 60%;
+        }
+        .operationQuantity {
+          font-size: 24px; /* 数量字体大小为 24px */
+          color: #333;
+          width: 20%;
+        }
+        
+        .action-btn {
+          display: flex;
+          width: 15%;
+          background-color: orange;
+          color: #fff;
+          //padding: 8px 16px;
+          border-radius: 5px;
+          //font-size: 24px;
+          cursor: pointer;
+        }
+        .action-btn:hover {
+          background-color: #0056b3;
+        }
+        
+      }
+
+      .card-body {
+        margin-bottom: 10px;
+        border: 1px solid #e0fbe4;
+        background-color:#c7f5cf;
+        border-radius: 4px;
+        padding: 0 10px ;
+        .extra {
+          font-size: 24px; /* 备注字体大小为 24px */
+          color: #000;
+          white-space: pre-wrap;
+          
+        }
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: flex-end;
+        color: #000;
+        .operationPerson {
+          font-size: 28px; /* 人员字体大小为 24px */
+          color: #000;
+          margin-right: 25px;
+        }
+        .operationTime {
+          font-size: 28px; /* 时间字体大小为 18px */
+          color: #000;
+        }
+        
+        
+        
+      }
+
+    }
+  }
+  
   
 }

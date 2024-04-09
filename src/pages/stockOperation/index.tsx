@@ -20,12 +20,10 @@ const InventoryList: Taro.FC = () => {
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
-    console.log("***************************");
     fetchData();
   }, [page]);
 
   useEffect(() => {
-    console.log("######################");
     setPage(1);
     fetchData();
   }, [operationType]);
@@ -146,23 +144,54 @@ const InventoryList: Taro.FC = () => {
           搜索
         </Button>
       </View>
-      <View className='list'>
-        {operationList.map(item => (
-          <View className='item' key={item._id}>
-            <Text className='productName'>{item.productName}</Text>
-            <Text className='operationQuantity'>{item.operationType === '入库' ? ('+' + item.operationQuantity) : ('-' + item.operationQuantity)}</Text>
-            <Text className='operationPerson'>{item.operationPerson}</Text>
-            <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
-            {item.operationPerson === Taro.getStorageSync('username') && (
-              <View className='actions'>
-                <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
-                  <AtIcon value='reload' size='18' color='#333' />
-                </Button>
-              </View>
-            )}
+
+      { operationType == '出库' ? (
+        <View className='operation-list'>
+        {operationList.map((item) => (
+          <View className='card' key={item._id}>
+            <View className='card-header'>
+              <Text className='productName'>{item.productName}</Text>
+              <Text className='operationQuantity'>{'-' + item.operationQuantity}</Text>
+              
+              {item.operationPerson === Taro.getStorageSync('username') && (
+              <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
+                <AtIcon value='reload' size='18' color='#333' />
+              </Button>
+              )}
+            </View>
+            <View className='card-body'>
+              <Text className='extra'>{item.extra}</Text>
+            </View>
+            
+            <View className='card-footer'>
+              <Text className='operationPerson'>填报员：{item.operationPerson}</Text>
+              <Text className='operationTime'>出库时间：{item.operationTime}</Text>
+            </View>
+            
           </View>
         ))}
       </View>
+        ) : (
+          <View className='list'>
+          {operationList.map(item => (
+            <View className='item' key={item._id}>
+              <Text className='productName'>{item.productName}</Text>
+              <Text className='operationQuantity'>{'+' + item.operationQuantity}</Text>
+              <Text className='operationPerson'>{item.operationPerson}</Text>
+              <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
+              {item.operationPerson === Taro.getStorageSync('username') && (
+                <View className='actions'>
+                  <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
+                    <AtIcon value='reload' size='18' color='#333' />
+                  </Button>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+        )
+
+      }
 
       <AtModal isOpened={undoModalVisible} onClose={cancelUndo}>
         <AtModalHeader>确认撤销</AtModalHeader>
@@ -174,8 +203,11 @@ const InventoryList: Taro.FC = () => {
             <View style={{ marginBottom: '10px' }}>
               <Text>操作数量: {curItem && curItem.operationQuantity}</Text>
             </View>
+            <View>
+              <Text>备注: {curItem && curItem?.extra}</Text>
+            </View>
             <View style={{ marginBottom: '10px' }}>
-              <Text>操作人: {curItem && curItem.operationPerson}</Text>
+              <Text>操作员: {curItem && curItem.operationPerson}</Text>
             </View>
             <View>
               <Text>操作时间: {curItem && curItem.operationTime}</Text>

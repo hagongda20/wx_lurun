@@ -99,6 +99,7 @@ const InventoryList: Taro.FC = () => {
         <Radio value='2.6' checked={selectedValue === '2.6'} className='radio'>2.6</Radio>
         <Radio value='2.7' checked={selectedValue === '2.7'} className='radio'>2.7</Radio>
         <Radio value='2.8' checked={selectedValue === '2.8'} className='radio'>2.8</Radio>
+        <Radio value='2.9' checked={selectedValue === '2.9'} className='radio'>2.9</Radio>
         <Radio value='3.05' checked={selectedValue === '3.05'} className='radio'>3.05</Radio>
         <Radio value='3.2' checked={selectedValue === '3.2'} className='radio'>3.2</Radio>
         <Radio value='3.6' checked={selectedValue === '3.6'} className='radio'>3.6</Radio>
