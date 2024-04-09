@@ -154,7 +154,7 @@ const InboundPage = () => {
       }
 
 
-      // 执行入库操作，这里可以替换成实际的入库逻辑
+      // 执行出库操作，这里可以替换成实际的出库逻辑
       console.log('出库商品ID:', item?._id);
       console.log('新增数量:', newQuantity);
       // 更新数据库中商品的数量字段
@@ -184,7 +184,7 @@ const InboundPage = () => {
         extra: extraContent
       };
 
-      // 将入库操作记录添加到操作记录表中
+      // 将出库操作记录添加到操作记录表中
       const addRecordRes = await db.collection(data_prefix+'opRecords').add({
         data: operationRecord
       });
@@ -192,7 +192,7 @@ const InboundPage = () => {
 
 
 
-      // 入库成功后的操作，例如显示成功提示并返回上一页
+      // 出库成功后的操作，例如显示成功提示并返回上一页
       Taro.showToast({
         title: '出库成功',
         icon: 'success',
