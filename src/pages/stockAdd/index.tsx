@@ -90,6 +90,7 @@ const InboundPage = () => {
         }
       });
       setcurQuantity(totolQuantity);
+      setNewQuantity(null);
       console.log(`商品 ${id} 入库成功，入库数量为 ${newQuantity}，入库后总数量为 ${totolQuantity},备注为${extraContent}`);
 
       // 从本地存储获取当前用户的信息
@@ -160,6 +161,7 @@ const InboundPage = () => {
         }
       });
       setcurQuantity(totolQuantity);
+      setNewQuantity(null);
       console.log(`商品 ${id} 出库成功，出库数量为 ${newQuantity}，出库后总数量为 ${totolQuantity}，备注为${extraContent}`);
 
       // 从本地存储获取当前用户的信息
