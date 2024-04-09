@@ -24,6 +24,7 @@ const InventoryList: Taro.FC = () => {
   }, [page]);
 
   useEffect(() => {
+    setOperationList([]);
     setPage(1);
     fetchData();
   }, [operationType]);
@@ -66,6 +67,7 @@ const InventoryList: Taro.FC = () => {
   };
 
   const handleSearch = () => {
+    //setOperationList([]);
     setPage(1); // 搜索时回到第一页
     fetchData();
   };

@@ -1,5 +1,6 @@
 .inventory-list {
   padding: 5px 20px;
+  margin-bottom: 20px;
 
   .operation-type{
     margin: 0 20px 15px;
@@ -167,9 +168,11 @@
   }
   .reach-bottom{
     margin: 10px 0;
+    text-align: center;
   }
   .all-data-loaded{
     margin: 10px 0;
+    text-align: center;
   }
   
 }
