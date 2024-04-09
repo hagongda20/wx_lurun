@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { View, Text, Input, Button, Radio, RadioGroup } from '@tarojs/components';
 import './index.scss';
-import { db, getPrefixByCompany } from '../../utils';
+import { db, getPrefixByCompany, formatDate } from '../../utils';
 import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui';
 
 const InventoryList: Taro.FC = () => {
@@ -42,6 +42,7 @@ const InventoryList: Taro.FC = () => {
       const res = await db.collection(data_prefix+'opRecords')
         .where(query)
         .orderBy('operationTime', 'desc') // 按照 operationTime 字段倒序排列
+        .orderBy('createTime', 'desc') // 按照 operationTime 字段倒序排列
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .get();
@@ -163,6 +164,7 @@ const InventoryList: Taro.FC = () => {
             </View>
             <View className='card-body'>
               <Text className='extra'>{item.extra}</Text>
+              
             </View>
             
             <View className='card-footer'>

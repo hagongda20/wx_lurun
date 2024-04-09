@@ -95,6 +95,9 @@ const InboundPage = () => {
 
       // 从本地存储获取当前用户的信息
       const stockInPerson = Taro.getStorageSync('username');
+      // 获取当前时间作为操作时间
+      const createTime = new Date();
+      console.log("创建时间为createTime：", createTime);
       // 构建入库操作记录对象
       const operationRecord = {
         productId: id,
@@ -102,6 +105,7 @@ const InboundPage = () => {
         operationType: '入库',
         operationQuantity: newQuantity,
         operationTime: selectedDate,
+        createTime: createTime,
         operationPerson: stockInPerson,
         extra: extraContent
       };
@@ -167,7 +171,7 @@ const InboundPage = () => {
       // 从本地存储获取当前用户的信息
       const stockInPerson = Taro.getStorageSync('username');
       // 获取当前时间作为操作时间
-      //const operationTime = new Date();
+      const createTime = new Date();
       // 构建入库操作记录对象
       const operationRecord = {
         productId: id,
@@ -175,6 +179,7 @@ const InboundPage = () => {
         operationType: '出库',
         operationQuantity: newQuantity,
         operationTime: selectedDate,
+        createTime: createTime,
         operationPerson: stockInPerson,
         extra: extraContent
       };

@@ -15,7 +15,7 @@ export function formatDate(date) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  return `${month}-${day} ${hours}`;
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 // 获取当前日期时间的字符串
