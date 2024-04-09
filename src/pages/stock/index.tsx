@@ -49,6 +49,17 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
+  //刷新页面
+  useEffect(() => {
+    // 监听事件，并在收到事件时执行 refreshHandler
+    Taro.eventCenter.on('refreshPageStockList', (keyword: string) => fetchData(keyword));
+
+    // 组件卸载时取消监听，避免内存泄漏
+    return () => {
+      Taro.eventCenter.off('refreshPageStockList', (keyword: string) => fetchData(keyword));
+    };
+  }, []);
+
   useEffect(() => {
     fetchData(selectedValue);
   }, [selectedValue]); // 当 selectedValue 变化时重新获取数据

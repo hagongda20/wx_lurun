@@ -121,7 +121,7 @@ const InboundPage = () => {
       });
       
       Taro.eventCenter.trigger('refreshPageStockList',kw);
-      //Taro.navigateBack();
+      Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
       Taro.showToast({
@@ -194,7 +194,7 @@ const InboundPage = () => {
         duration: 2000
       });
       Taro.eventCenter.trigger('refreshPageStockList',kw);
-      //Taro.navigateBack();
+      Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);
       Taro.showToast({
