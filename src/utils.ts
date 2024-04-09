@@ -34,6 +34,7 @@ export const getPrefixByCompany = (company: string) => {
   switch(company){
     case '永和': return 'yh_';
     case '鲁润': return 'lr_';
+    case '测试': return 'test_';
     default: return ''
   }
 }

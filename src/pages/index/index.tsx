@@ -84,6 +84,7 @@ export default function Index() {
         <RadioGroup className='radio-group' onChange={handleCompanyChange} value={company}>
           <Radio className='radio' value='鲁润' checked={company=='鲁润'}>鲁润</Radio>
           <Radio className='radio' value='永和' checked={company=='永和'}>永和</Radio>
+          <Radio className='radio' value='测试' checked={company=='测试'}>测试</Radio>
         </RadioGroup>
       </View>
       <View className='form'>
