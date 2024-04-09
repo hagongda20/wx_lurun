@@ -5,21 +5,19 @@ import { useEffect, useState } from 'react';
 import { db, getPrefixByCompany } from '../../utils';
 
 const InventoryList: Taro.FC = () => {
-  const defaultSelectedValue = '2.44';
-  const [selectedValue, setSelectedValue] = useState(defaultSelectedValue);
+  const [selectedValue, setSelectedValue] = useState('2.44'); // 初始选中值为2.44
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const role = Taro.getStorageSync('role');
+  const options = ['2.44', '2.6', '2.7', '2.8', '2.9', '3.05', '3.2', '3.6', '4.1']; // 选项数组
 
   // 当前库存列表查询
   const fetchData = async (value: string) => {
     try {
       setLoading(true);
       let query = db.collection(data_prefix+'stock');
-      query = query.where({}); // 清空所有条件
-
       // 添加搜索条件
       query = query.where({
         name: db.RegExp({
@@ -27,10 +25,6 @@ const InventoryList: Taro.FC = () => {
           options: 'i'
         }),
       });
-
-      //手动删除自动添加的 _openid 条件
-      //delete query.where._openid;
-      //console.log("query:",query._query);
 
       const countRes = await query.count();
       const total = countRes.total;
@@ -56,25 +50,8 @@ const InventoryList: Taro.FC = () => {
   };
 
   useEffect(() => {
-    fetchData(defaultSelectedValue);
-  }, []);
-
-  //刷新页面
-  useEffect(() => {
-    // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageStockList', (keyword: string) => fetchData(keyword));
-
-    // 组件卸载时取消监听，避免内存泄漏
-    return () => {
-      Taro.eventCenter.off('refreshPageStockList', (keyword: string) => fetchData(keyword));
-    };
-  }, []);
-
-  // 处理单选按钮变化
-  const handleRadioChange = (value: string) => {
-    setSelectedValue(value);
-    fetchData(value); // 在这里添加搜索操作
-  };
+    fetchData(selectedValue);
+  }, [selectedValue]); // 当 selectedValue 变化时重新获取数据
 
   // 出库操作
   const handleStockOut = (id: number) => {
@@ -94,16 +71,10 @@ const InventoryList: Taro.FC = () => {
 
   return (
     <View className='inventory-list'>
-      <RadioGroup onChange={(e) => handleRadioChange(e.detail.value)} className='radio-group'>
-        <Radio value='2.44' checked={selectedValue === '2.44'} className='radio'>2.44</Radio>
-        <Radio value='2.6' checked={selectedValue === '2.6'} className='radio'>2.6</Radio>
-        <Radio value='2.7' checked={selectedValue === '2.7'} className='radio'>2.7</Radio>
-        <Radio value='2.8' checked={selectedValue === '2.8'} className='radio'>2.8</Radio>
-        <Radio value='2.9' checked={selectedValue === '2.9'} className='radio'>2.9</Radio>
-        <Radio value='3.05' checked={selectedValue === '3.05'} className='radio'>3.05</Radio>
-        <Radio value='3.2' checked={selectedValue === '3.2'} className='radio'>3.2</Radio>
-        <Radio value='3.6' checked={selectedValue === '3.6'} className='radio'>3.6</Radio>
-        <Radio value='4.1' checked={selectedValue === '4.1'} className='radio'>4.1</Radio>
+      <RadioGroup onChange={(e) => setSelectedValue(e.detail.value)} className='radio-group'>
+        {options.map((option, index) => (
+          <Radio key={index} value={option} checked={selectedValue === option} className='radio'>{option}</Radio>
+        ))}
       </RadioGroup>
       { loading ? (
         <Text>Loading...</Text>
@@ -113,22 +84,22 @@ const InventoryList: Taro.FC = () => {
             <View className='item' key={item._id}>
               <Text className='name'>{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
-              { role == '会计'? (
-              <View className='actions'>
-                <Button
-                  className='action-btn stock-out-btn'
-                  onClick={() => handleStockOut(item._id)}
-                >
-                  出库
-                </Button>
-                <Button
-                  className='action-btn stock-in-btn'
-                  onClick={() => handleStockIn(item._id)}
-                >
-                  入库
-                </Button>
-              </View>) : (<view></view>)
-              }
+              { role === '会计' && (
+                <View className='actions'>
+                  <Button
+                    className='action-btn stock-out-btn'
+                    onClick={() => handleStockOut(item._id)}
+                  >
+                    出库
+                  </Button>
+                  <Button
+                    className='action-btn stock-in-btn'
+                    onClick={() => handleStockIn(item._id)}
+                  >
+                    入库
+                  </Button>
+                </View>
+              )}
             </View>
           ))}
         </View>
