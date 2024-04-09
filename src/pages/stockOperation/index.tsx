@@ -20,8 +20,15 @@ const InventoryList: Taro.FC = () => {
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
+    console.log("***************************");
     fetchData();
-  }, [operationType, page]);
+  }, [page]);
+
+  useEffect(() => {
+    console.log("######################");
+    setPage(1);
+    fetchData();
+  }, [operationType]);
 
   const fetchData = async () => {
     try {
@@ -55,11 +62,6 @@ const InventoryList: Taro.FC = () => {
       console.error('Fetch inventory error:', error);
     }
   };
-
-  useEffect(() => {
-    // 默认查询出库数据
-    fetchData();
-  }, []); // 空数组作为依赖，只在组件初始化时调用一次
 
   const handleKeywordChange = (e: Taro.ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.detail.value);

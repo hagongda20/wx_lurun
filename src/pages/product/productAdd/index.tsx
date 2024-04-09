@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import ProductForm from '../productForm/index';
-import { db } from '../../../utils';
+import { db, getPrefixByCompany } from '../../../utils';
 
 function ProductPage() {
   const [product, setProduct] = useState({
@@ -10,6 +10,8 @@ function ProductPage() {
     quantity: '',
     remark: '',
   });
+
+  const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
     if (Taro.getCurrentInstance().router?.params?.id) {
@@ -21,7 +23,7 @@ function ProductPage() {
 
   const getProduct = async (productId) => {
     try {
-      const res = await db.collection('LuRunStock').doc(productId).get();
+      const res = await db.collection(data_prefix+'stock').doc(productId).get();
       if (res.data) {
         setProduct(res.data);
       }
@@ -37,14 +39,14 @@ function ProductPage() {
         const { _openid, _id, ...updatedData } = formData;
         console.log('更新商品开始:', updatedData);
         const productId = Taro.getCurrentInstance().router?.params?.id;
-        await db.collection('LuRunStock').doc(productId).update({
+        await db.collection(data_prefix+'stock').doc(productId).update({
           data: updatedData,
         });
         console.log('更新商品成功:', formData);
         Taro.eventCenter.trigger('refreshPageProductList');
       } else {
         // 否则，新增商品信息
-        await db.collection('LuRunStock').add({
+        await db.collection(data_prefix+'stock').add({
           data: formData,
         });
         console.log('新增商品成功:', formData);
