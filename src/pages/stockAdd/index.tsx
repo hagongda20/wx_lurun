@@ -17,6 +17,7 @@ const InboundPage = () => {
   const [curQuantity, setcurQuantity] = useState<number>();
   const [selectedDate, setSelectedDate] = useState(getCurrentDateTimeString());
   const [extraContent, setExtraContent] = useState<string>('');
+  const [btnState, setBtnState] = useState<boolean>(false);
 
   const router = useRouter();
   const { id, operate, kw} = router.params;
@@ -64,22 +65,26 @@ const InboundPage = () => {
 
   //处理入库
   const handleInbound = async () => {
+    setBtnState(true);  //鼠标点击后禁用，防止再次点击
     if (!newQuantity) {
       Taro.showToast({
         title: '请输入入库数量',
         icon: 'none',
         duration: 1500
       });
+      setBtnState(false);  //鼠标点击后禁用，防止再次点击
       return;
     }
 
     try {
       //const newQuantity = parseInt(newQuantity);
       if (isNaN(newQuantity) || newQuantity <= 0) {
+        setBtnState(false);  //鼠标点击后禁用，防止再次点击
         throw new Error('请输入有效的入库数量');
+        
       }
 
-
+      
       // 执行入库操作，这里可以替换成实际的入库逻辑
       //console.log('入库商品ID:', item?._id, '新增数量:', newQuantity);
       // 更新数据库中商品的数量字段
@@ -123,9 +128,9 @@ const InboundPage = () => {
         icon: 'success',
         duration: 1500
       });
-      
+      setBtnState(false);//入库成功后，解除按钮禁用
       Taro.eventCenter.trigger('refreshPageStockList',kw);
-      Taro.navigateBack();
+      //Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
       Taro.showToast({
@@ -138,18 +143,21 @@ const InboundPage = () => {
 
   //处理出库
   const handleOutbound = async () => {
+    setBtnState(true);  //鼠标点击后禁用，防止再次点击
     if (!newQuantity) {
       Taro.showToast({
         title: '请输入出库数量',
         icon: 'none',
         duration: 2000
       });
+      setBtnState(false);  //鼠标点击后禁用，防止再次点击
       return;
     }
 
     try {
       //const newQuantity = parseInt(newQuantity);
       if (isNaN(newQuantity) || newQuantity <= 0) {
+        setBtnState(false);  //鼠标点击后禁用，防止再次点击
         throw new Error('请输入有效的出库数量');
       }
 
@@ -198,6 +206,7 @@ const InboundPage = () => {
         icon: 'success',
         duration: 2000
       });
+      setBtnState(false);  //鼠标点击后禁用，防止再次点击
       Taro.eventCenter.trigger('refreshPageStockList',kw);
       Taro.navigateBack();
     } catch (error) {
@@ -248,7 +257,7 @@ const InboundPage = () => {
             onInput={handleTextareaChange}
           />
       </View>
-      <Button className='inbound-btn' onClick={operate=='add'? handleInbound: handleOutbound}>{operate=="add"? '执行入库':'执行出库'}</Button>
+      <Button className='inbound-btn' disabled={btnState} onClick={operate=='add'? handleInbound: handleOutbound}>{operate=="add"? '执行入库':'执行出库'}</Button>
       
     </View>
   );
