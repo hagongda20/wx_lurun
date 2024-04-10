@@ -61,13 +61,16 @@ const InventoryList: Taro.FC = () => {
       if (uniqueNames.length > 0) {
         setSelectedValue(uniqueNames[0]);
       }
+
+      // 获取完选项后再去获取数据
+      fetchData(selectedValue, selectedType);
     } catch (error) {
       console.error('Fetch options error:', error);
     }
   };
 
   // 当前库存列表查询
-  const fetchData = async () => {
+  const fetchData = async (value: string, type: string) => {
     try {
       setLoading(true);
       let query = db.collection(data_prefix + 'stock');
@@ -75,14 +78,14 @@ const InventoryList: Taro.FC = () => {
       // 添加搜索条件
       query = query.where({
         name: db.RegExp({
-          regexp: selectedValue,
+          regexp: value,
           options: 'i'
         }),
       });
 
-      if (selectedType) {
+      if (type) {
         query = query.where({
-          type: selectedType
+          type: type
         });
       }
 
@@ -115,7 +118,9 @@ const InventoryList: Taro.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchData(); // 数据更新
+    if (selectedValue !== '' && selectedType !== '') {
+      fetchData(selectedValue, selectedType); // 数据更新
+    }
   }, [selectedValue, selectedType]); // 当 selectedValue 或 selectedType 变化时重新获取数据
 
   // 出库操作
