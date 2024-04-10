@@ -95,7 +95,7 @@ const InventoryList: Taro.FC = () => {
             <View className='item' key={item._id}>
               <Text className='name'>{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
-              { role === '会计' && (
+              
                 <View className='actions'>
                   <Button
                     className='action-btn stock-out-btn'
@@ -103,14 +103,15 @@ const InventoryList: Taro.FC = () => {
                   >
                     出库
                   </Button>
+                  { role === '会计' && (
                   <Button
                     className='action-btn stock-in-btn'
                     onClick={() => handleStockIn(item._id)}
                   >
                     入库
-                  </Button>
+                  </Button>)}
                 </View>
-              )}
+              
             </View>
           ))}
         </View>

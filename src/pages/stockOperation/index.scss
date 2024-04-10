@@ -106,12 +106,12 @@
         font-weight: bold;
         border-radius: 4px;
         .productName {
-          font-size: 28px; /* 字体大小设置为 28px */
+          font-size: 36px; /* 字体大小设置为 28px */
           font-weight: bold;
           width: 60%;
         }
         .operationQuantity {
-          font-size: 28px; /* 数量字体大小为 24px */
+          font-size: 36px; /* 数量字体大小为 24px */
           color: #333;
           width: 20%;
         }
@@ -139,9 +139,10 @@
         border-radius: 4px;
         padding: 0 10px ;
         .extra {
-          font-size: 24px; /* 备注字体大小为 24px */
-          color: #000;
+          font-size: 36px; /* 备注字体大小为 24px */
+          color: orangered;
           white-space: pre-wrap;
+          font-weight: bold;
           
         }
       }
@@ -151,12 +152,12 @@
         justify-content: flex-end;
         color: #000;
         .operationPerson {
-          font-size: 28px; /* 人员字体大小为 24px */
+          font-size: 32px; /* 人员字体大小为 24px */
           color: #000;
           margin-right: 25px;
         }
         .operationTime {
-          font-size: 28px; /* 时间字体大小为 18px */
+          font-size: 32px; /* 时间字体大小为 18px */
           color: #000;
         }
         
