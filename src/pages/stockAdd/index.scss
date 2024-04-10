@@ -7,13 +7,13 @@
     .info-row{
       margin-top: 20px;
       .label {
-        font-size: 28px;
+        font-size: 36px;
         color: #333;
       }
 
       .value {
-        font-size: 28px;
-        color: #666;
+        font-size: 36px;
+        color: #000;
         margin-left: 10px;
       }
 
@@ -27,7 +27,8 @@
     margin-bottom: 20px;
 
     .label {
-      font-size: 28px;
+      font-size: 36px;
+      font-weight: bold;
       color: #333;
       margin-right: 10px;
     }
@@ -37,7 +38,7 @@
       height: 70px;
       border: 1px solid #ccc;
       padding: 0 10px;
-      font-size: 28px;
+      font-size: 36px;
       font-weight: bold;
       border-radius: 8px;
     }
@@ -45,13 +46,14 @@
       border:1px solid #ccc;
       width:100%;
       margin-bottom: 40px;
-      font-size: 28px;
+      font-size: 36px;
     }
   }
 
   .date{
     // border: 1px solid black;
-    font-size: 28px;
+    font-size: 36px;
+    font-weight: bold;
     margin-bottom: 20px;
     
   }

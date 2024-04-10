@@ -244,7 +244,7 @@ const InboundPage = () => {
           onInput={handleQuantityChange}
         />
       </View>
-      <Picker className="date" mode='date' value={selectedDate || getCurrentDateTimeString()} onChange={handleDateChange}>
+      <Picker className='date'  mode='date' value={selectedDate || getCurrentDateTimeString()} onChange={handleDateChange}>
           <View className='picker'>
             <Text>选择时间：{selectedDate || getCurrentDateTimeString()}</Text>
           </View>
