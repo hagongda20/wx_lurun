@@ -7,6 +7,7 @@ import {db, getCurrentDateTimeString, getPrefixByCompany} from '../../utils'
 interface InventoryItem {
   _id: string;
   name: string;
+  type: string;
   quantity: number;
   extra:string;
 }
@@ -130,7 +131,7 @@ const InboundPage = () => {
       });
       setBtnState(false);//入库成功后，解除按钮禁用
       Taro.eventCenter.trigger('refreshPageStockList',kw);
-      //Taro.navigateBack();
+      Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
       Taro.showToast({
@@ -226,6 +227,10 @@ const InboundPage = () => {
         <View className='info-row'>
           <Text className='label'>商品名称：</Text>
           <Text className='value'>{item.name}</Text>
+        </View>
+        <View className='info-row'>
+          <Text className='label'>商品类别：</Text>
+          <Text className='value'>{item.type}</Text>
         </View>
         <View className='info-row'>
           <Text className='label'>当前数量：</Text>

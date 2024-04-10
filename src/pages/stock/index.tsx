@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 import { db, getPrefixByCompany } from '../../utils';
 
 const InventoryList: Taro.FC = () => {
-  const [selectedValue, setSelectedValue] = useState('2.44'); // 初始选中值为2.44
+  const [selectedValue, setSelectedValue] = useState('2.4'); // 初始选中值为2.44
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const role = Taro.getStorageSync('role');
-  const options = ['2.44', '2.6', '2.7', '2.8', '2.9', '3.05', '3.2', '3.6', '4.1']; // 选项数组
+  const options = ['2.4', '2.6', '2.7', '2.8', '2.9', '3.0', '3.2', '3.6', '4.1']; // 选项数组
 
   // 当前库存列表查询
   const fetchData = async (value: string) => {

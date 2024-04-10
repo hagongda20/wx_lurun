@@ -4,6 +4,7 @@ import { View, Text, Input, Button } from '@tarojs/components';
 function ProductForm({ onSubmit, initialValues }) {
   const [product, setProduct] = useState({
     name: '',
+    type: '',
     quantity: '',
     extra: '',
   });
@@ -20,6 +21,10 @@ function ProductForm({ onSubmit, initialValues }) {
 
   const handleProductNameChange = (value) => {
     setProduct({ ...product, name: value });
+  };
+
+  const handleProductTypeChange = (value) => {
+    setProduct({ ...product, type: value });
   };
 
   const handleQuantityChange = (value) => {
@@ -39,6 +44,15 @@ function ProductForm({ onSubmit, initialValues }) {
           value={product.name}
           placeholder='请输入产品名称'
           onInput={(e) => handleProductNameChange(e.target.value)}
+        />
+      </View>
+      <View className='form-item'>
+        <Text>产品类型：</Text>
+        <Input
+          type='text'
+          value={product.type}
+          placeholder='请输入产品类别'
+          onInput={(e) => handleProductTypeChange(e.target.value)}
         />
       </View>
       <View className='form-item'>

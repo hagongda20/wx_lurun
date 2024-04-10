@@ -7,6 +7,7 @@ import { db, getPrefixByCompany } from '../../../utils';
 function ProductPage() {
   const [product, setProduct] = useState({
     productName: '',
+    type: '',
     quantity: '',
     remark: '',
   });
