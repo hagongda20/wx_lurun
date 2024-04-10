@@ -61,9 +61,6 @@ const InventoryList: Taro.FC = () => {
       if (uniqueNames.length > 0) {
         setSelectedValue(uniqueNames[0]);
       }
-
-      // 获取完选项后再去获取数据
-      fetchData(selectedValue, selectedType);
     } catch (error) {
       console.error('Fetch options error:', error);
     }
