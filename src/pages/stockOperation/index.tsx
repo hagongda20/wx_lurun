@@ -18,6 +18,8 @@ const InventoryList: Taro.FC = () => {
 
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
+  const username = Taro.getStorageSync('username');
+  //const role = Taro.getStorageSync('role');
 
   useEffect(() => {
     fetchData();
@@ -151,7 +153,10 @@ const InventoryList: Taro.FC = () => {
       { operationType == '出库' ? (
         <View className='operation-list'>
         {operationList.map((item) => (
-          <View className='card' key={item._id}>
+          <View 
+            className={`card ${item.operationPerson != username ? ' accountant' : ''}`}  //不是自己填的一律飘黄
+            key={item._id}
+          >
             <View className='card-header'>
               <Text className='productName'>{item.productName}</Text>
               <Text className='operationQuantity'>{'-' + item.operationQuantity}</Text>

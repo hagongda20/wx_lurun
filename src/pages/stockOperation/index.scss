@@ -85,11 +85,13 @@
     }
   }
 
+  
+
   .operation-list {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-   
+    
     .card {
       width: 100%; /* 每个卡片占据整个宽度 */
       padding: 20px;
@@ -165,6 +167,10 @@
         
       }
 
+    }
+
+    .accountant{
+      background-color: yellow;
     }
   }
   .reach-bottom{
