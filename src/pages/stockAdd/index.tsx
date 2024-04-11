@@ -21,7 +21,7 @@ const InboundPage = () => {
   const [btnState, setBtnState] = useState<boolean>(false);
 
   const router = useRouter();
-  const { id, operate, kw} = router.params;
+  const { id, operate, selectedValue, selectedType} = router.params;
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
@@ -121,7 +121,7 @@ const InboundPage = () => {
         data: operationRecord
       });
       console.log('入库操作记录已添加：', addRecordRes);
-      console.log('keyword:', kw);
+      console.log('selectedValue:', selectedValue,'selectedType:',selectedType);
       
       // 入库成功后的操作，例如显示成功提示并返回上一页
       Taro.showToast({
@@ -130,7 +130,7 @@ const InboundPage = () => {
         duration: 1500
       });
       setBtnState(false);//入库成功后，解除按钮禁用
-      Taro.eventCenter.trigger('refreshPageStockList',kw);
+      Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
       Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
@@ -208,7 +208,7 @@ const InboundPage = () => {
         duration: 2000
       });
       setBtnState(false);  //鼠标点击后禁用，防止再次点击
-      Taro.eventCenter.trigger('refreshPageStockList',kw);
+      Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
       Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);

@@ -115,6 +115,17 @@ const InventoryList: Taro.FC = () => {
     fetchOptions(); // 获取商品类型和价格列表
   }, []);
 
+  //刷新页面
+  useEffect(() => {
+    // 监听事件，并在收到事件时执行 refreshHandler
+    Taro.eventCenter.on('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
+
+    // 组件卸载时取消监听，避免内存泄漏
+    return () => {
+      Taro.eventCenter.off('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
+    };
+  }, []);
+
   useEffect(() => {
     if (selectedValue !== '' && selectedType !== '') {
       fetchData(selectedValue, selectedType); // 数据更新
@@ -125,7 +136,7 @@ const InventoryList: Taro.FC = () => {
   const handleStockOut = (id: number) => {
     console.log(`商品 ${id} 出库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'plus'}&kw=${selectedValue}`
+      url: `/pages/stockAdd/index?id=${id}&operate=${'plus'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
     });
   };
 
@@ -133,7 +144,7 @@ const InventoryList: Taro.FC = () => {
   const handleStockIn = (id: number) => {
     console.log(`商品 ${id} 入库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'add'}&kw=${selectedValue}`
+      url: `/pages/stockAdd/index?id=${id}&operate=${'add'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
     });
   };
 

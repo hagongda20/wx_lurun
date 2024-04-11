@@ -60,6 +60,7 @@ const InventoryList: Taro.FC = () => {
         .count();
       
       setTotalRecords(totalRes.total);
+      console.log('总记录数totalRecords:', totalRecords);
     } catch (error) {
       console.error('Fetch inventory error:', error);
     }

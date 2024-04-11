@@ -20,7 +20,8 @@ import {AtButton } from 'taro-ui'
     const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
     // 当前库存列表查询
-    const fetchData = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const fetchData = async (keyword: string) => {
       try {
         const countRes = await db.collection(data_prefix+'stock').count();
         const total = countRes.total;
@@ -31,7 +32,12 @@ import {AtButton } from 'taro-ui'
   
         let allData = [];
         for (let i = 0; i < batchTimes; i++) {
-          const res = await db.collection(data_prefix+'stock').skip(i * batchSize).limit(batchSize).get();
+          const res = await db.collection(data_prefix+'stock').where({
+            name: db.RegExp({
+              regexp: keyword,
+              options: keyword ? 'i' : '' // 如果 keyword 存在则设置为 'i'，否则为空字符串
+            })
+          }).skip(i * batchSize).limit(batchSize).get();
           allData = allData.concat(res.data);
         }
   
@@ -45,56 +51,21 @@ import {AtButton } from 'taro-ui'
     };
   
     useEffect(() => {
-        fetchData();
+        fetchData(keyword);
       }, []); 
 
     //刷新页面
     useEffect(() => {
       // 监听事件，并在收到事件时执行 refreshHandler
-      Taro.eventCenter.on('refreshPageProductList', fetchData);
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      Taro.eventCenter.on('refreshPageProductList', (keyword: string) => fetchData(keyword));
   
       // 组件卸载时取消监听，避免内存泄漏
       return () => {
-        Taro.eventCenter.off('refreshPageProductList', fetchData);
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        Taro.eventCenter.off('refreshPageProductList', (keyword: string) => fetchData(keyword));
       };
     }, []);
-  
-    // 模糊查询库存列表
-    const searchInventory = async (kw: string) => {
-        setLoading(true); // 如果出现错误也要设置 loading 为 false
-        try {
-          const kw_countRes = await db.collection(data_prefix+'stock').where({
-            name: db.RegExp({
-              regexp: kw,
-              options: 'i'  // 'i' 表示忽略大小写
-            })
-          }).count();
-          const kw_total = kw_countRes.total;
-          console.log("关键字查询-当前库存商品总记录数 count:", kw_total);
-
-          const batchSize = 20; // 每次查询的数据量
-          const batchTimes = Math.ceil(kw_total / batchSize); // 需要分几次查询
-    
-          let kw_allData = [];
-          for (let i = 0; i < batchTimes; i++) {
-            const res = await db.collection(data_prefix+'stock').where({
-              name: db.RegExp({
-                regexp: kw,
-                options: 'i'  // 'i' 表示忽略大小写
-              })
-            }).skip(i * batchSize).limit(batchSize).get();
-            kw_allData = kw_allData.concat(res.data);
-          }
-  
-          console.log("关键字所查所有数据:", kw_allData);
-          setInventoryList(kw_allData);
-          setLoading(false); // 如果出现错误也要设置 loading 为 false
-
-        } catch (error) {
-          console.error('模糊查询失败:', error);
-          setLoading(false); // 如果出现错误也要设置 loading 为 false
-        }
-    };
   
     // 处理关键字输入变化
     const handleKeywordChange = (e: Taro.ChangeEvent<HTMLInputElement>) => {
@@ -103,7 +74,7 @@ import {AtButton } from 'taro-ui'
   
     // 处理搜索按钮点击事件
     const handleSearch = () => {
-      searchInventory(keyword);
+      fetchData(keyword);
     };
   
     
@@ -122,7 +93,7 @@ import {AtButton } from 'taro-ui'
     const handleEdit = (id: string) => {
       console.log(`商品 ${id} 修改`);
       Taro.navigateTo({
-        url: `/pages/product/productAdd/index?id=${id}`
+        url: `/pages/product/productAdd/index?id=${id}&keyword=${keyword}`
       });
 
     };
@@ -131,7 +102,7 @@ import {AtButton } from 'taro-ui'
     const handleProdcutAddClick = (id: string) => {
         console.log(`商品新增`);
         Taro.navigateTo({
-          url: '/pages/product/productAdd/index'
+          url: `/pages/product/productAdd/index?keyword=${keyword}`
         });
   
       };

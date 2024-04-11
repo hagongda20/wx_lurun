@@ -34,6 +34,7 @@ function ProductPage() {
   };
 
   const handleFormSubmit = async (formData) => {
+    const keyword = Taro.getCurrentInstance().router?.params.keyword;
     try {
       if (Taro.getCurrentInstance().router?.params?.id) {
         // 如果是编辑模式，则更新商品信息
@@ -44,14 +45,14 @@ function ProductPage() {
           data: updatedData,
         });
         console.log('更新商品成功:', formData);
-        Taro.eventCenter.trigger('refreshPageProductList');
+        Taro.eventCenter.trigger('refreshPageProductList', keyword);
       } else {
         // 否则，新增商品信息
         await db.collection(data_prefix+'stock').add({
           data: formData,
         });
         console.log('新增商品成功:', formData);
-        Taro.eventCenter.trigger('refreshPageProductList');
+        Taro.eventCenter.trigger('refreshPageProductList', keyword);
       }
       // 返回上一页
       Taro.navigateBack();
@@ -60,7 +61,7 @@ function ProductPage() {
       Taro.showToast({
         title: '操作失败，请重试',
         icon: 'none',
-        duration: 2000,
+        duration: 1500,
       });
     }
   };
