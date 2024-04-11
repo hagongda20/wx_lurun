@@ -106,8 +106,9 @@
         margin-bottom: 10px;
         background-color: #c7f5cf;
         font-weight: bold;
-        border-radius: 4px;
+        border-radius: 8px;
         .productName {
+          padding: 0 10px;
           font-size: 36px; /* 字体大小设置为 28px */
           font-weight: bold;
           width: 60%;
@@ -138,7 +139,7 @@
         margin-bottom: 10px;
         border: 1px solid #e0fbe4;
         background-color:#f1faf3;
-        border-radius: 4px;
+        border-radius: 8px;
         padding: 0 10px ;
         .extra {
           font-size: 36px; /* 备注字体大小为 24px */
