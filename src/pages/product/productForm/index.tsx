@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Input, Button } from '@tarojs/components';
+import './index.scss';
 
 function ProductForm({ onSubmit, initialValues }) {
   const [product, setProduct] = useState({
@@ -38,7 +39,6 @@ function ProductForm({ onSubmit, initialValues }) {
   return (
     <View className='product-form'>
       <View className='form-item'>
-        <Text>产品名称：</Text>
         <Input
           type='text'
           value={product.name}
@@ -47,7 +47,6 @@ function ProductForm({ onSubmit, initialValues }) {
         />
       </View>
       <View className='form-item'>
-        <Text>产品类型：</Text>
         <Input
           type='text'
           value={product.type}
@@ -56,7 +55,6 @@ function ProductForm({ onSubmit, initialValues }) {
         />
       </View>
       <View className='form-item'>
-        <Text>数量：</Text>
         <Input
           type='number'
           value={product.quantity}
@@ -65,7 +63,6 @@ function ProductForm({ onSubmit, initialValues }) {
         />
       </View>
       <View className='form-item'>
-        <Text>备注：</Text>
         <Input
           type='text'
           value={product.extra}

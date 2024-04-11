@@ -30,7 +30,10 @@ export default function Index() {
       const res = await db.collection('users').where({
         username,
         password,
-        company
+        company: db.RegExp({
+          regexp: company,
+          options: 'i'  // 使用 'i' 选项进行不区分大小写匹配
+        })
       }).get()
       console.log('Login result:', res)
       if (res.data.length > 0) {
