@@ -1,7 +1,8 @@
 import Taro from '@tarojs/taro';
 import { View, Text, Button, RadioGroup, Radio, ScrollView } from '@tarojs/components';
 import './index.scss';
-import { useEffect, useState } from 'react';
+// eslint-disable-next-line import/first
+import { useState, useEffect } from 'react';
 import { db, getPrefixByCompany } from '../../utils';
 
 const InventoryList: Taro.FC = () => {
@@ -9,8 +10,7 @@ const InventoryList: Taro.FC = () => {
   const [selectedType, setSelectedType] = useState(''); // 初始选中类型为空
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [typeOptions, setTypeOptions] = useState<string[]>([]); // 商品类型选项数组
-  const [priceOptions, setPriceOptions] = useState<string[]>([]); // 价格选项数组
+  const [options, setOptions] = useState<{ [key: string]: string[] }>({});
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const role = Taro.getStorageSync('role');
@@ -18,8 +18,8 @@ const InventoryList: Taro.FC = () => {
   // 获取商品类型和价格列表
   const fetchOptions = async () => {
     try {
-      let allTypes: string[] = [];
-      let allNames: string[] = [];
+      let allPrices: string[] = [];
+      let allOptions: { [key: string]: string[] } = {};
 
       const countRes = await db.collection(data_prefix + 'stock').count();
       const total = countRes.total;
@@ -35,31 +35,32 @@ const InventoryList: Taro.FC = () => {
           .get();
 
         res.data.forEach(item => {
-          if (item.type && !allTypes.includes(item.type)) {
-            allTypes.push(item.type);
-          }
-
           if (item.name) {
-            allNames.push(item.name.substring(0, 3)); // 获取名称的前三个字符
+            const price = item.name.substring(0, 3); // 获取名称的前三个字符
+            if (!allPrices.includes(price)) {
+              allPrices.push(price);
+            }
+            if (!allOptions[price]) {
+              allOptions[price] = [];
+            }
+            if (item.type && !allOptions[price].includes(item.type)) {
+              allOptions[price].push(item.type);
+            }
           }
         });
       }
 
-      const uniqueTypes = Array.from(new Set(allTypes)); // 去重
-      console.log("查询出的所有类型type:", uniqueTypes);
-      setTypeOptions(uniqueTypes);
+      const uniquePrices = Array.from(new Set(allPrices)); // 去重
+      console.log("查询出的所有价格:", uniquePrices);
+      setOptions(allOptions);
+      setSelectedValue(uniquePrices[0] || '');
 
-      const uniqueNames = Array.from(new Set(allNames)); // 去重
-      console.log("查询出的所有名称前三个字符:", uniqueNames);
-      setPriceOptions(uniqueNames);
-
-      // 默认选中第一个类型和第一个价格
-      if (uniqueTypes.length > 0) {
-        setSelectedType(uniqueTypes[0]);
-      }
-
-      if (uniqueNames.length > 0) {
-        setSelectedValue(uniqueNames[0]);
+      // 默认选中第一个价格和第一个类型
+      if (uniquePrices.length > 0) {
+        setSelectedValue(uniquePrices[0]);
+        if (allOptions[uniquePrices[0]]) {
+          setSelectedType(allOptions[uniquePrices[0]][0] || '');
+        }
       }
     } catch (error) {
       console.error('Fetch options error:', error);
@@ -109,7 +110,7 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
-  //刷新页面
+  // 刷新页面
   useEffect(() => {
     fetchOptions(); // 获取商品类型和价格列表
   }, []);
@@ -136,6 +137,15 @@ const InventoryList: Taro.FC = () => {
     });
   };
 
+  // 选择价格时默认选中第一个类型
+  const handlePriceChange = (e: any) => {
+    const price = e.detail.value;
+    setSelectedValue(price);
+    if (options[price]) {
+      setSelectedType(options[price][0] || '');
+    }
+  };
+
   return (
     <ScrollView
       className='inventory-list'
@@ -144,14 +154,14 @@ const InventoryList: Taro.FC = () => {
     >
       <View className='navbar'>
         {/* 价格单选框 */}
-        <RadioGroup onChange={(e) => setSelectedValue(e.detail.value)} className='radio-group'>
-          {priceOptions.map((option, index) => (
-            <Radio key={index} value={option} checked={selectedValue === option} className='radio'>{option}</Radio>
+        <RadioGroup onChange={handlePriceChange} className='radio-group'>
+          {Object.keys(options).map((price, index) => (
+            <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
           ))}
         </RadioGroup>
         {/* 商品类型单选框 */}
         <RadioGroup onChange={(e) => setSelectedType(e.detail.value)} className='radio-group'>
-          {typeOptions.map((type, index) => (
+          {options[selectedValue] && options[selectedValue].map((type, index) => (
             <Radio key={index} value={type} checked={selectedType === type} className='radio'>{type}</Radio>
           ))}
         </RadioGroup>
