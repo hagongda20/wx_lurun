@@ -181,9 +181,9 @@ const InventoryList: Taro.FC = () => {
       {loading ? (
         <Text>Loading...</Text>
       ) : (
-        <View className='list'>
+        <View className='list' >
           {inventoryList.map(item => (
-            <View className='item' key={item._id}>
+            <View className='item'  key={item._id} style={{backgroundColor: Number(item.quantity) < 0 ? '#ffcccc' : 'white' }}>
               <Text className='name'>{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
 
