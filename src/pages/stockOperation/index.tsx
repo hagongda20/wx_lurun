@@ -170,7 +170,7 @@ const handleOperationTypeChange = (e) => {
               
               {item.operationPerson === Taro.getStorageSync('username') && (
               <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
-                <AtIcon value='reload' size='18' color='#333' />
+                <AtIcon value='close' size='20' color='#333' />
               </Button>
               )}
             </View>

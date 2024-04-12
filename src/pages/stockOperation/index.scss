@@ -111,7 +111,7 @@
           padding: 0 10px;
           font-size: 36px; /* 字体大小设置为 28px */
           font-weight: bold;
-          width: 60%;
+          width: 68%;
         }
         .operationQuantity {
           font-size: 36px; /* 数量字体大小为 24px */
@@ -121,12 +121,13 @@
         
         .action-btn {
           display: flex;
-          width: 15%;
-          background-color: orange;
-          color: #fff;
-          //padding: 8px 16px;
-          border-radius: 5px;
-          //font-size: 24px;
+          justify-content: center;
+          width: 6%;
+          background-color: #b4f6bf;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          //background-color: #fb8e8e;
+          //border-radius: 8px;   
+          //border-style: none;
           cursor: pointer;
         }
         .action-btn:hover {
