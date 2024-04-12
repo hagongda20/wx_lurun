@@ -131,10 +131,16 @@ const InventoryList: Taro.FC = () => {
     setPage(prevPage => prevPage + 1);
   };
 
+const handleOperationTypeChange = (e) => {
+  setPage(1); //切换出入库时回到第一页
+  setOperationType(e.detail.value);
+};
+  
+
   return (
     <View className='inventory-list'>
       <View className='operation-type'>
-        <RadioGroup onChange={(e) => setOperationType(e.detail.value)} value={operationType}>
+        <RadioGroup onChange={handleOperationTypeChange} value={operationType}>
           <Radio className='radio' value='出库' checked={operationType === '出库'}>出库</Radio>
           <Radio className='radio' value='入库' checked={operationType === '入库'}>入库</Radio>
         </RadioGroup>
