@@ -180,8 +180,8 @@ const handleOperationTypeChange = (e) => {
             </View>
             
             <View className='card-footer'>
-              <Text className='operationPerson'>填报员：{item.operationPerson}</Text>
-              <Text className='operationTime'>出库时间：{item.operationTime}</Text>
+              <Text className='operationPerson'>{item.operationPerson}</Text>
+              <Text className='operationTime'>{formatDate(item.createTime)}</Text>
             </View>
             
           </View>
