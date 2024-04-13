@@ -26,8 +26,8 @@ const Home = () => {
     <View className='home'>
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
-        <AtButton className='btn' onClick={handleStockOperationClick}>出入库操作记录</AtButton>
-        <AtButton className='btn' onClick={handleProductClick}>库存产品维护</AtButton>
+        <AtButton className='btn' onClick={handleStockOperationClick}>库存记录</AtButton>
+        <AtButton className='btn' onClick={handleProductClick}>库存盘点</AtButton>
         <View className='divider' />
 
         <AtButton className='btn' disabled onClick={handleProductClick}>工序设定</AtButton>
