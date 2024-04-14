@@ -18,6 +18,15 @@ export function formatDate(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+export const getCurDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+
 // 获取当前日期时间的字符串
 export const getCurrentDateTimeString = () => {
   const now = new Date();

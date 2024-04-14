@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '库存'
+  navigationBarTitleText: '库存产品'
 })

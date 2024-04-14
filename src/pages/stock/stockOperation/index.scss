@@ -3,22 +3,33 @@
   margin-bottom: 20px;
 
   .operation-type{
-    margin: 0 20px 15px;
-    .radio{
-      margin-right: 30px;
+    margin-bottom: 20px;
+    display: flex;
+    .radiogroup{
+      
+      .radio{
+        margin-right: 30px;
+      }
     }
+    .picker{
+      margin-left: 20px;
+    }
+    
+
+
   }
 
   .search-bar {
+    //clear: both;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
-
+    margin: 20px 0;
     .search-input {
       flex: 1;
-      width: 70%;
+      width: 60%;
       height: 70px;
       padding: 0 12px;
+      margin-right: 10px;
       border: 1px solid #ccc;
       border-radius: 18px;
     }

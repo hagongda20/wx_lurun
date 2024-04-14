@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '出入库操作记录'
+  navigationBarTitleText: '库存流水'
 })

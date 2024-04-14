@@ -1,70 +1,67 @@
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
-import { View, Text, Input, Button, Radio, RadioGroup } from '@tarojs/components';
+import { View, Text, Input, Button, Radio, RadioGroup, Picker } from '@tarojs/components';
 import './index.scss';
-import { db, getPrefixByCompany, formatDate } from '../../../utils';
-// eslint-disable-next-line import/first
+import { db, getPrefixByCompany, formatDate, getCurDate } from '../../../utils';
 import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui';
 
 const InventoryList: Taro.FC = () => {
   const [keyword, setKeyword] = useState('');
+  const [loading, setLoading] = useState(true);
   const [operationList, setOperationList] = useState<any>([]);
   const [operationType, setOperationType] = useState<string>('出库');
   const [undoModalVisible, setUndoModalVisible] = useState(false);
   const [undoItemId, setUndoItemId] = useState('');
   const [curItem, setCurItem] = useState({});
-  const [page, setPage] = useState(1); // 当前页数
-  const [pageSize, setPageSize] = useState(20); // 每页数据量
-  const [totalRecords, setTotalRecords] = useState(0); // 总记录数
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(getCurDate(new Date())); // 默认选择当天日期
 
-  // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const username = Taro.getStorageSync('username');
-  //const role = Taro.getStorageSync('role');
-
-  useEffect(() => {
-    fetchData();
-  }, [page]);
 
   useEffect(() => {
     setOperationList([]);
-    setPage(1);
     fetchData();
-  }, [operationType]);
+  }, [operationType,selectedDate]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      let query: any = {
+      let query = db.collection(data_prefix + 'opRecords');
+
+      // 添加搜索条件
+      query = query.where({
         productName: db.RegExp({
           regexp: keyword,
           options: 'i'
         }),
-        operationType: operationType
-      };
+        operationType: operationType,
+        operationTime: db.RegExp({
+          regexp: selectedDate,
+          options: 'i'
+        })
+      });
 
-      const res = await db.collection(data_prefix+'opRecords')
-        .where(query)
-        .orderBy('operationTime', 'desc') // 按照 operationTime 字段倒序排列
-        .orderBy('createTime', 'desc') // 按照 operationTime 字段倒序排列
-        .skip((page - 1) * pageSize)
-        .limit(pageSize)
-        .get();
+      //查出所有记录数
+      const countRes = await query.count();
+      const total = countRes.total;
 
-      if (page === 1) {
-        setOperationList(res.data);
-      } else {
-        setOperationList(prevList => [...prevList, ...res.data]);
+      const batchSize = 20;
+      const batchTimes = Math.ceil(total / batchSize);
+
+      let allData = [];
+      for (let i = 0; i < batchTimes; i++) {
+        let batchQuery = query.skip(i * batchSize).limit(batchSize);
+        const res = await batchQuery.get();
+        allData = allData.concat(res.data);
       }
-
-      const totalRes = await db.collection(data_prefix+'opRecords')
-        .where(query)
-        .count();
-      
-      setTotalRecords(totalRes.total);
-      console.log('总记录数totalRecords:', totalRecords);
+      allData.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
+      setOperationList(allData);
+      setTotalRecords(total);
     } catch (error) {
       console.error('Fetch inventory error:', error);
     }
+    setLoading(false);
   };
 
   const handleKeywordChange = (e: Taro.ChangeEvent<HTMLInputElement>) => {
@@ -72,8 +69,6 @@ const InventoryList: Taro.FC = () => {
   };
 
   const handleSearch = () => {
-    //setOperationList([]);
-    setPage(1); // 搜索时回到第一页
     fetchData();
   };
 
@@ -109,6 +104,7 @@ const InventoryList: Taro.FC = () => {
         }
       });
 
+      setTotalRecords(totalRecords-1);
       Taro.showToast({
         title: '撤销成功',
         icon: 'success'
@@ -128,23 +124,27 @@ const InventoryList: Taro.FC = () => {
     setUndoModalVisible(false);
   };
 
-  const reachBottomHandler = () => {
-    setPage(prevPage => prevPage + 1);
+  const handleOperationTypeChange = (e) => {
+    setOperationType(e.detail.value);
   };
 
-const handleOperationTypeChange = (e) => {
-  setPage(1); //切换出入库时回到第一页
-  setOperationType(e.detail.value);
-};
-  
+  const handleDateChange = (e) => {
+    setSelectedDate(e.detail.value);
+  };
 
   return (
     <View className='inventory-list'>
       <View className='operation-type'>
-        <RadioGroup onChange={handleOperationTypeChange} value={operationType}>
+        <RadioGroup className='radiogroup' onChange={handleOperationTypeChange} value={operationType}>
           <Radio className='radio' value='出库' checked={operationType === '出库'}>出库</Radio>
           <Radio className='radio' value='入库' checked={operationType === '入库'}>入库</Radio>
         </RadioGroup>
+        <Picker className='picker' mode='date' value={selectedDate} onChange={handleDateChange}>
+          
+            <Text>{selectedDate}</Text>
+            <AtIcon value='calendar' size='20' color='#333' />
+          
+        </Picker>
       </View>
       <View className='search-bar'>
         <Input
@@ -158,38 +158,38 @@ const handleOperationTypeChange = (e) => {
         </Button>
       </View>
 
-      { operationType == '出库' ? (
+      {loading ? (
+        <Text>Loading...</Text>
+      ) : (
+      operationType == '出库' ? (
         <View className='operation-list'>
-        {operationList.map((item) => (
-          <View 
-            className={`card ${item.operationPerson != username ? ' accountant' : ''}`}  //不是自己填的一律飘黄
-            key={item._id}
-          >
-            <View className='card-header'>
-              <Text className='productName'>{item.productName}</Text>
-              <Text className='operationQuantity'>{'-' + item.operationQuantity}</Text>
-              
-              {item.operationPerson === Taro.getStorageSync('username') && (
-              <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
-                <AtIcon value='close' size='20' color='#333' />
-              </Button>
-              )}
+          {operationList.map((item) => (
+            <View 
+              className={`card ${item.operationPerson != username ? ' accountant' : ''}`}
+              key={item._id}
+            >
+              <View className='card-header'>
+                <Text className='productName'>{item.productName}</Text>
+                <Text className='operationQuantity'>{'-' + item.operationQuantity}</Text>
+                
+                {item.operationPerson === Taro.getStorageSync('username') && (
+                  <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
+                    <AtIcon value='close' size='20' color='#333' />
+                  </Button>
+                )}
+              </View>
+              <View className='card-body'>
+                <Text className='extra'>{item.extra}</Text>
+              </View>
+              <View className='card-footer'>
+                <Text className='operationPerson'>{item.operationPerson}</Text>
+                <Text className='operationTime'>{formatDate(item.createTime)}</Text>
+              </View>
             </View>
-            <View className='card-body'>
-              <Text className='extra'>{item.extra}</Text>
-              
-            </View>
-            
-            <View className='card-footer'>
-              <Text className='operationPerson'>{item.operationPerson}</Text>
-              <Text className='operationTime'>{formatDate(item.createTime)}</Text>
-            </View>
-            
-          </View>
-        ))}
-      </View>
-        ) : (
-          <View className='list'>
+          ))}
+        </View>
+      ) : (
+        <View className='list'>
           {operationList.map(item => (
             <View className='item' key={item._id}>
               <Text className='productName'>{item.productName}</Text>
@@ -206,9 +206,7 @@ const handleOperationTypeChange = (e) => {
             </View>
           ))}
         </View>
-        )
-
-      }
+      ))}
 
       <AtModal isOpened={undoModalVisible} onClose={cancelUndo}>
         <AtModalHeader>确认撤销</AtModalHeader>
@@ -237,15 +235,7 @@ const handleOperationTypeChange = (e) => {
         </AtModalAction>
       </AtModal>
 
-      {/* 触底加载提示 */}
-      {operationList.length != totalRecords && operationList.length > 0 && operationList.length % pageSize === 0 && (
-        <View className='reach-bottom' onClick={reachBottomHandler}>
-          <Text className='reach-bottom-text'>点击加载更多数据</Text>
-        </View>
-      )}
-
-      {/* 数据加载完成提示 */}
-      {totalRecords > 0 && operationList.length >= totalRecords && (
+      {!loading && (
         <View className='all-data-loaded'>
           <Text className='all-data-loaded-text'>数据已全部加载完成，共 {totalRecords} 条记录</Text>
         </View>
