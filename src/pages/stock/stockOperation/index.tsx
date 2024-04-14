@@ -2,7 +2,8 @@ import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { View, Text, Input, Button, Radio, RadioGroup } from '@tarojs/components';
 import './index.scss';
-import { db, getPrefixByCompany, formatDate } from '../../utils';
+import { db, getPrefixByCompany, formatDate } from '../../../utils';
+// eslint-disable-next-line import/first
 import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction } from 'taro-ui';
 
 const InventoryList: Taro.FC = () => {

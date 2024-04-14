@@ -45,7 +45,7 @@ export default function Index() {
         Taro.setStorageSync('loginTime', new Date().getTime()); // 记录登录时间
         console.log('登录成功')
         Taro.navigateTo({
-          url: '/pages/stockNav/index'
+          url: '/pages/funcNav/index'
         })
       } else {
         // 登录失败

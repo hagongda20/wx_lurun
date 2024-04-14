@@ -136,7 +136,7 @@ const InventoryList: Taro.FC = () => {
   const handleStockOut = (id: number) => {
     console.log(`商品 ${id} 出库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'plus'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
+      url: `/pages/stock/stockAdd/index?id=${id}&operate=${'plus'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
     });
   };
 
@@ -144,7 +144,7 @@ const InventoryList: Taro.FC = () => {
   const handleStockIn = (id: number) => {
     console.log(`商品 ${id} 入库操作`);
     Taro.navigateTo({
-      url: `/pages/stockAdd/index?id=${id}&operate=${'add'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
+      url: `/pages/stock/stockAdd/index?id=${id}&operate=${'add'}&selectedValue=${selectedValue}&selectedType=${selectedType}`
     });
   };
 

@@ -2,7 +2,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import { View, Text, Input, Button, Picker, Textarea } from '@tarojs/components';
 import { useState, useEffect } from 'react';
 import './index.scss';
-import {db, getCurrentDateTimeString, getPrefixByCompany} from '../../utils'
+import {db, getCurrentDateTimeString, getPrefixByCompany} from '../../../utils'
 
 interface InventoryItem {
   _id: string;

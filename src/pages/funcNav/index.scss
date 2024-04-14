@@ -2,12 +2,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  //padding: auto;
   //height: 100vh;
   .btn-container {
     display: flex;
     flex-direction: column;
     width:70%;
-    //align-items: center;
     .divider {
       border-top: 1px solid #ccc;
       margin: 10px 0;
@@ -17,7 +17,6 @@
       font-size: 32px;
       background-color: lightgreen;
       color: #000;
-      //border: none;
       border-radius: 10px;
     }
     .btn:hover {

@@ -12,7 +12,7 @@ const Home = () => {
 
   const handleStockOperationClick = () => {
     Taro.navigateTo({
-      url: '/pages/stockOperation/index'
+      url: '/pages/stock/stockOperation/index'
     });
   };
 
@@ -26,9 +26,12 @@ const Home = () => {
     <View className='home'>
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
-        <AtButton className='btn' onClick={handleStockOperationClick}>库存记录</AtButton>
+        <AtButton className='btn' onClick={handleStockOperationClick}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick}>库存盘点</AtButton>
+        <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>
+        {/** 
         <View className='divider' />
+
 
         <AtButton className='btn' disabled onClick={handleProductClick}>工序设定</AtButton>
         <AtButton className='btn' disabled onClick={handleProductClick}>工序工作量录入</AtButton>
@@ -36,7 +39,7 @@ const Home = () => {
         <AtButton className='btn' disabled onClick={handleProductClick}>工序核对</AtButton>
         <View className='divider' />
         <AtButton className='btn' disabled onClick={handleProductClick}>一账双录</AtButton>
-        <AtButton className='btn' disabled onClick={handleProductClick}>对账审核</AtButton>
+        <AtButton className='btn' disabled onClick={handleProductClick}>对账审核</AtButton>*/}
       </View>
     </View>
   );

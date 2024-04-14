@@ -2,7 +2,7 @@ import Taro, { useReady, usePageScroll } from '@tarojs/taro';
 import { View, Text, Input, Button, Radio, RadioGroup } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import { db } from '../../utils';
+import { db } from '../../../utils';
 import { AtIcon, AtModal } from 'taro-ui';
 
 const InventoryList: Taro.FC = () => {
