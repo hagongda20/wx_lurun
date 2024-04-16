@@ -15,6 +15,7 @@ const InventoryList: Taro.FC = () => {
   const [curItem, setCurItem] = useState({});
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedDate, setSelectedDate] = useState(getCurDate(new Date())); // 默认选择当天日期
+  const [totalQuantity, setTotalQuantity] = useState(0);
 
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const username = Taro.getStorageSync('username');
@@ -36,7 +37,7 @@ const InventoryList: Taro.FC = () => {
           options: 'i'
         }),
         operationType: operationType,
-        operationTime: db.RegExp({
+        operationTime: db.RegExp({   //出库时间，操作时间是createTime
           regexp: selectedDate,
           options: 'i'
         })
@@ -55,7 +56,21 @@ const InventoryList: Taro.FC = () => {
         const res = await batchQuery.get();
         allData = allData.concat(res.data);
       }
-      allData.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
+      // 在fetchData函数中处理数据之前
+      let curtotalQuantity = Number(allData[0].operationQuantity); // 先累加第一个值
+
+      // 在排序的同时累加quantity的值
+      allData.sort((a, b) => {
+        const quantityA = Number(a.operationQuantity);
+        //console.log("quantityA:",quantityA);
+        curtotalQuantity += quantityA; // 累加quantityA的值
+        
+        return new Date(b.createTime).getTime() - new Date(a.createTime).getTime();
+      });
+
+      console.log('Total Quantity:', curtotalQuantity); // 输出所有item的quantity累计值
+      setTotalQuantity(curtotalQuantity);
+
       setOperationList(allData);
       setTotalRecords(total);
     } catch (error) {
@@ -94,8 +109,10 @@ const InventoryList: Taro.FC = () => {
       let newQuantity = 0;
       if (itemToUndo.operationType === '入库') {
         newQuantity = Number(checkoutProduct?.data?.quantity) - Number(itemToUndo.operationQuantity);
+        setTotalQuantity(totalQuantity-Number(itemToUndo.operationQuantity));
       } else {
         newQuantity = Number(checkoutProduct?.data?.quantity) + Number(itemToUndo.operationQuantity);
+        setTotalQuantity(totalQuantity-Number(itemToUndo.operationQuantity));
       }
 
       const res = await db.collection(data_prefix+'stock').doc(itemToUndo.productId).update({
@@ -182,6 +199,7 @@ const InventoryList: Taro.FC = () => {
                 <Text className='extra'>{item.extra}</Text>
               </View>
               <View className='card-footer'>
+                <Text className='operationPerson'>{item.operationTime}</Text>
                 <Text className='operationPerson'>{item.operationPerson}</Text>
                 <Text className='operationTime'>{formatDate(item.createTime)}</Text>
               </View>
@@ -237,7 +255,7 @@ const InventoryList: Taro.FC = () => {
 
       {!loading && (
         <View className='all-data-loaded'>
-          <Text className='all-data-loaded-text'>数据已全部加载完成，共 {totalRecords} 条记录</Text>
+          <Text className='all-data-loaded-text'>共 {totalRecords} 条记录, {totalQuantity} 张</Text>
         </View>
       )}
     </View>
