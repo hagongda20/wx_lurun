@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { View, Text, Input, Button, ScrollView, RadioGroup, Radio } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import {db, getPrefixByCompany} from '../../utils'
+import {db, getPrefixByCompany,exportToExcel} from '../../utils'
 import {AtButton } from 'taro-ui'
 
 // 模拟库存数据
@@ -178,6 +178,11 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
+  //导出数据到excel
+  const handleExport = () => {
+    exportToExcel();
+  };
+
   return (
       <ScrollView
         className='inventory-list'
@@ -198,7 +203,10 @@ const InventoryList: Taro.FC = () => {
           ))}
         </RadioGroup>
       </View>
-      <AtButton className='btn' onClick={handleProdcutAddClick}>产品新增</AtButton>
+      <View className='button-container'>
+        <AtButton className='btn' disabled onClick={handleExport}>数据导出</AtButton>
+        <AtButton className='btn' onClick={handleProdcutAddClick}>产品新增</AtButton>
+      </View>
       {loading ? (
         <Text>Loading...</Text>
       ) : (

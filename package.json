@@ -57,9 +57,11 @@
     "@tarojs/runtime": "3.6.25",
     "@tarojs/shared": "3.6.25",
     "@tarojs/taro": "3.6.25",
+    "file-saver": "^2.0.5",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "taro-ui": "^3.3.0"
+    "taro-ui": "^3.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.8.0",

@@ -57,16 +57,16 @@ const InventoryList: Taro.FC = () => {
         allData = allData.concat(res.data);
       }
       // 在fetchData函数中处理数据之前
-      let curtotalQuantity = Number(allData[0].operationQuantity); // 先累加第一个值
+      //let curtotalQuantity = Number(allData[0].operationQuantity); // 先累加第一个值
 
       // 在排序的同时累加quantity的值
-      allData.sort((a, b) => {
-        const quantityA = Number(a.operationQuantity);
-        //console.log("quantityA:",quantityA);
-        curtotalQuantity += quantityA; // 累加quantityA的值
-        
-        return new Date(b.createTime).getTime() - new Date(a.createTime).getTime();
-      });
+      allData.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
+
+
+      let curtotalQuantity = allData.reduce((acc, curr) => {
+        const quantity = Number(curr.operationQuantity);
+        return acc + quantity;
+      }, 0);
 
       console.log('Total Quantity:', curtotalQuantity); // 输出所有item的quantity累计值
       setTotalQuantity(curtotalQuantity);
@@ -199,7 +199,6 @@ const InventoryList: Taro.FC = () => {
                 <Text className='extra'>{item.extra}</Text>
               </View>
               <View className='card-footer'>
-                <Text className='operationPerson'>{item.operationTime}</Text>
                 <Text className='operationPerson'>{item.operationPerson}</Text>
                 <Text className='operationTime'>{formatDate(item.createTime)}</Text>
               </View>

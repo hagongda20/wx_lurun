@@ -21,8 +21,13 @@
         }
       }
     }
+    .button-container {
+      display: flex;
+      justify-content: space-between; /* 或者其他的 justify-content 方式 */
+    }
     .btn{
       margin-bottom: 10px;
+      width:49%;
     }
     .list {
       .item {
