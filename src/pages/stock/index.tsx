@@ -184,19 +184,25 @@ const InventoryList: Taro.FC = () => {
       ) : (
         <View className='list' >
           {inventoryList.map(item => (
-            <View className='item'  key={item._id} style={{backgroundColor: Number(item.quantity) < 0 ? '#ffcccc' : 'white' }}>
-              <Text className='name'>{item.name}</Text>
+            <View className='item'  
+              key={item._id} 
+              style={{
+                backgroundColor: Number(item.quantity) < 0 ? '#ffcccc' : 'white', 
+              }}
+            >
+              <Text className='name'
+                style={{width: belongToCompany? '50%': '84%'}}
+              >{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
 
-              <View className='actions'>
-                {belongToCompany && (           //本公司的才能出库
+              {belongToCompany && (<View className='actions'>                    
                   <Button
                     className='action-btn stock-out-btn'
                     onClick={() => handleStockOut(item._id)}
                   >
                     出库
                   </Button>
-                )}
+                
                 {belongToCompany && role === '会计' && (   //属于本公司的会计才能入库
                   <Button
                     className='action-btn stock-in-btn'
@@ -206,6 +212,7 @@ const InventoryList: Taro.FC = () => {
                   </Button>
                 )}
               </View>
+              )}
             </View>
           ))}
         </View>
