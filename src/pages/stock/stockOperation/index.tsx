@@ -19,6 +19,8 @@ const InventoryList: Taro.FC = () => {
 
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const username = Taro.getStorageSync('username');
+  const belongToCompany = Taro.getStorageSync('belongToCompany');  //是否隶属本公司标志
+  const role = Taro.getStorageSync('role');
 
   useEffect(() => {
     setOperationList([]);
@@ -188,8 +190,8 @@ const InventoryList: Taro.FC = () => {
               <View className='card-header'>
                 <Text className='productName'>{item.productName}</Text>
                 <Text className='operationQuantity'>{'-' + item.operationQuantity}</Text>
-                
-                {item.operationPerson === Taro.getStorageSync('username') && (
+                {/**隶属于本公司的销售或会计才有撤销权利 */}
+                {belongToCompany && (item.operationPerson === Taro.getStorageSync('username') || role=='会计')&& (  
                   <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
                     <AtIcon value='close' size='20' color='#333' />
                   </Button>
@@ -213,7 +215,8 @@ const InventoryList: Taro.FC = () => {
               <Text className='operationQuantity'>{'+' + item.operationQuantity}</Text>
               <Text className='operationPerson'>{item.operationPerson}</Text>
               <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
-              {item.operationPerson === Taro.getStorageSync('username') && (
+              {/**隶属于本公司的销售或会计才有撤销权利 */}
+              {belongToCompany && (item.operationPerson === Taro.getStorageSync('username') || role=='会计') && (
                 <View className='actions'>
                   <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
                     <AtIcon value='reload' size='18' color='#333' />

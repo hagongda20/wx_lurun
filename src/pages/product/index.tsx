@@ -179,8 +179,9 @@ const InventoryList: Taro.FC = () => {
   };
 
   //导出数据到excel
-  const handleExport = () => {
-    exportToExcel();
+  const handleExport = async () => {
+   
+     exportToExcel(); // 调用导出函数获取文件路径
   };
 
   return (
@@ -204,7 +205,7 @@ const InventoryList: Taro.FC = () => {
         </RadioGroup>
       </View>
       <View className='button-container'>
-        <AtButton className='btn' disabled onClick={handleExport}>数据导出</AtButton>
+        <AtButton className='btn' onClick={handleExport}>数据导出</AtButton>
         <AtButton className='btn' onClick={handleProdcutAddClick}>产品新增</AtButton>
       </View>
       {loading ? (

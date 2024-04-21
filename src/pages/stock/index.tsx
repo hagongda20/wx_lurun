@@ -14,6 +14,7 @@ const InventoryList: Taro.FC = () => {
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const role = Taro.getStorageSync('role');
+  const belongToCompany = Taro.getStorageSync('belongToCompany');
 
   // 获取商品类型和价格列表
   const fetchOptions = async () => {
@@ -188,13 +189,15 @@ const InventoryList: Taro.FC = () => {
               <Text className='quantity'>{item.quantity}</Text>
 
               <View className='actions'>
-                <Button
-                  className='action-btn stock-out-btn'
-                  onClick={() => handleStockOut(item._id)}
-                >
-                  出库
-                </Button>
-                {role === '会计' && (
+                {belongToCompany && (           //本公司的才能出库
+                  <Button
+                    className='action-btn stock-out-btn'
+                    onClick={() => handleStockOut(item._id)}
+                  >
+                    出库
+                  </Button>
+                )}
+                {belongToCompany && role === '会计' && (   //属于本公司的会计才能入库
                   <Button
                     className='action-btn stock-in-btn'
                     onClick={() => handleStockIn(item._id)}

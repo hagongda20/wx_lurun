@@ -4,6 +4,8 @@ import {AtButton } from 'taro-ui'
 import './index.scss'
 
 const Home = () => {
+  const belongToCompany = Taro.getStorageSync('belongToCompany');
+
   const handleInventoryClick = () => {
     Taro.navigateTo({
       url: '/pages/stock/index'
@@ -27,7 +29,7 @@ const Home = () => {
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick}>库存流水</AtButton>
-        <AtButton className='btn' onClick={handleProductClick}>库存盘点</AtButton>
+        <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany}>库存盘点</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>
         {/** 
         <View className='divider' />

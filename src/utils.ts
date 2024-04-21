@@ -55,11 +55,21 @@ export const getPrefixByCompany = (company: string) => {
 export const exportToExcel = async () => {
   try {
     const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
-    const res = await db.collection(data_prefix + 'stock').get();
-    const data = res.data;
+    const countRes = await db.collection(data_prefix + 'stock').count();
+    const total = countRes.total;
+    // console.log("当前库存商品总记录数 count:", total, "company:", data_prefix);
+    const batchSize = 20;
+    const batchTimes = Math.ceil(total / batchSize);
+
+    let allData = [];
+    for (let i = 0; i < batchTimes; i++) {
+      let batchQuery = db.collection(data_prefix + 'stock').skip(i * batchSize).limit(batchSize);
+      const res = await batchQuery.get();
+      allData = allData.concat(res.data);
+    }
 
     // 数据转换为 Excel 格式
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet(allData);
 
     // 创建工作簿
     const workbook = XLSX.utils.book_new();
@@ -73,6 +83,7 @@ export const exportToExcel = async () => {
 
     // 生成临时文件路径
     const filePath = Taro.env.USER_DATA_PATH + '/data.xlsx';
+    //const filePath = `${Taro.env.USER_DOWNLOAD_PATH}/data.xlsx`;
 
     // 将 ArrayBuffer 保存到文件
     Taro.getFileSystemManager().writeFile({
@@ -84,6 +95,31 @@ export const exportToExcel = async () => {
           title: '导出成功',
           icon: 'success',
           duration: 2000
+        });
+
+        // 给用户提供一个按钮，点击后打开文件
+        Taro.showModal({
+          title: '导出成功',
+          content: '是否打开导出的文件？',
+          success: (res) => {
+            if (res.confirm) {
+              Taro.openDocument({
+                filePath: filePath,
+                success: () => {
+                  console.log('打开成功');
+                },
+                fail: (err) => {
+                  console.error('打开失败:', err);
+                  // 提示用户打开失败
+                  Taro.showToast({
+                    title: '打开失败，请重试',
+                    icon: 'none',
+                    duration: 2000
+                  });
+                }
+              });
+            }
+          }
         });
       },
       fail: (err) => {

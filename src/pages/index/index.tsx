@@ -29,11 +29,12 @@ export default function Index() {
       
       const res = await db.collection('users').where({
         username,
-        password,
+        password
+        /** 
         company: db.RegExp({
           regexp: company,
           options: 'i'  // 使用 'i' 选项进行不区分大小写匹配
-        })
+        })*/
       }).get()
       console.log('Login result:', res)
       if (res.data.length > 0) {
@@ -41,6 +42,12 @@ export default function Index() {
         Taro.setStorageSync('username', username);
         Taro.setStorageSync('password', password);
         Taro.setStorageSync('company', company);
+        if(res.data[0].company.includes(company)){ //公司隶属标志，有隶属关系则开放相关权限
+          Taro.setStorageSync('belongToCompany', true);
+        }else{
+          Taro.setStorageSync('belongToCompany', false);
+        }
+
         Taro.setStorageSync('role',res.data[0].role);
         Taro.setStorageSync('loginTime', new Date().getTime()); // 记录登录时间
         console.log('登录成功')
