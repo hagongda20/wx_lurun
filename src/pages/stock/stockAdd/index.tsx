@@ -130,7 +130,8 @@ const InboundPage = () => {
         duration: 1500
       });
       setBtnState(false);//入库成功后，解除按钮禁用
-      Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
+      //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
+      Taro.eventCenter.trigger('refreshPageStockList',item?._id, totolQuantity);
       Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
@@ -208,7 +209,9 @@ const InboundPage = () => {
         duration: 2000
       });
       setBtnState(false);  //鼠标点击后禁用，防止再次点击
-      Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
+      //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
+      //console.log('传值之前',item?._id, totolQuantity)
+      Taro.eventCenter.trigger('refreshPageStockList',item?._id, totolQuantity);
       Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);

@@ -111,6 +111,14 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
+  // 出入库返回后inventoryList相关的数据更新
+  const filterData = async (id: string, quantity: string) => {
+    //console.log('数据过滤id,quantity:',id,quantity);
+    setInventoryList(prevInventoryList => 
+      prevInventoryList.map(item => item._id === id ? { ...item, quantity: quantity } : item)
+    );
+  }
+
   // 刷新页面
   useEffect(() => {
     fetchOptions(); // 获取商品类型和价格列表
@@ -119,11 +127,12 @@ const InventoryList: Taro.FC = () => {
   //刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
+    Taro.eventCenter.on('refreshPageStockList', (id: string, quantity:string) => filterData(id, quantity));
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
-      Taro.eventCenter.off('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
+      //Taro.eventCenter.off('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
+      Taro.eventCenter.on('refreshPageStockList', (id: string, quantity:string) => filterData(id, quantity));
     };
   }, []);
 
