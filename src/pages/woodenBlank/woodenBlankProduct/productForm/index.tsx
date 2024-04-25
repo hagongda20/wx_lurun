@@ -5,7 +5,7 @@ import './index.scss';
 function ProductForm({ onSubmit, initialValues }) {
   const [product, setProduct] = useState({
     name: '',
-    type: '',
+    type: '坯板', // 将type设置为固定值
     quantity: '',
     extra: '',
   });
@@ -22,10 +22,6 @@ function ProductForm({ onSubmit, initialValues }) {
 
   const handleProductNameChange = (value) => {
     setProduct({ ...product, name: value });
-  };
-
-  const handleProductTypeChange = (value) => {
-    setProduct({ ...product, type: value });
   };
 
   const handleQuantityChange = (value) => {
@@ -49,9 +45,9 @@ function ProductForm({ onSubmit, initialValues }) {
       <View className='form-item'>
         <Input
           type='text'
-          value={product.type}
+          value='坯板'
           placeholder='请输入产品类别'
-          onInput={(e) => handleProductTypeChange(e.target.value)}
+          disabled // 禁用输入框，使其无法编辑
         />
       </View>
       <View className='form-item'>

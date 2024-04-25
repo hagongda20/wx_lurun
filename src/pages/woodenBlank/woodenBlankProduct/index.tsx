@@ -23,7 +23,7 @@ const InventoryList: Taro.FC = () => {
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const role = Taro.getStorageSync('role');
 
-  // 获取商品类型和价格列表
+  // 获取商品长度列表
   const fetchOptions = async () => {
     try {
       let allPrices: string[] = [];
@@ -88,12 +88,6 @@ const InventoryList: Taro.FC = () => {
           options: 'i'
         }),
       });
-
-      if (type) {
-        query = query.where({
-          type: type
-        });
-      }
 
       const countRes = await query.count();
       const total = countRes.total;
@@ -197,12 +191,7 @@ const InventoryList: Taro.FC = () => {
             <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
           ))}
         </RadioGroup>
-        {/* 商品类型单选框 */}
-        <RadioGroup onChange={(e) => setSelectedType(e.detail.value)} className='radio-group'>
-          {options[selectedValue] && options[selectedValue].map((type, index) => (
-            <Radio key={index} value={type} checked={selectedType === type} className='radio'>{type}</Radio>
-          ))}
-        </RadioGroup>
+        
       </View>
       <View className='button-container'>
         <AtButton className='btn' onClick={handleExport}>数据导出</AtButton>

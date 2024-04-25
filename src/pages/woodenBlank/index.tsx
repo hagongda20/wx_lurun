@@ -161,12 +161,7 @@ const InventoryList: Taro.FC = () => {
             <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
           ))}
         </RadioGroup>
-        {/* 商品类型单选框 */}
-        <RadioGroup onChange={(e) => setSelectedType(e.detail.value)} className='radio-group'>
-          {options[selectedValue] && options[selectedValue].map((type, index) => (
-            <Radio key={index} value={type} checked={selectedType === type} className='radio'>{type}</Radio>
-          ))}
-        </RadioGroup>
+        
       </View>
 
       {loading ? (

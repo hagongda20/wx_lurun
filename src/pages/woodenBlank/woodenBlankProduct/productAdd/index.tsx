@@ -6,10 +6,9 @@ import { db, getPrefixByCompany } from '../../../../utils';
 
 function ProductPage() {
   const [product, setProduct] = useState({
-    productName: '',
+    name: '',
     type: '',
     quantity: '',
-    remark: '',
   });
 
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
