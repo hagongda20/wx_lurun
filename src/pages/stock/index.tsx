@@ -9,6 +9,7 @@ const InventoryList: Taro.FC = () => {
   const [selectedValue, setSelectedValue] = useState(''); // 初始选中值为空
   const [selectedType, setSelectedType] = useState(''); // 初始选中类型为空
   const [inventoryList, setInventoryList] = useState([]);
+  const [allInventoryList, setAllInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [options, setOptions] = useState<{ [key: string]: string[] }>({});
   // 从本地存储获取当前用户的信息
@@ -28,9 +29,10 @@ const InventoryList: Taro.FC = () => {
       const batchSize = 20;
       const batchTimes = Math.ceil(total / batchSize);
 
+      let allData = [];
       for (let i = 0; i < batchTimes; i++) {
         const res = await db.collection(data_prefix + 'stock')
-          .field({ type: true, name: true })
+          .field({ type: true, name: true, quantity: true })
           .skip(i * batchSize)
           .limit(batchSize)
           .get();
@@ -49,10 +51,13 @@ const InventoryList: Taro.FC = () => {
             }
           }
         });
-      }
 
+        allData = allData.concat(res.data);//全数据state
+      }
+      //console.log("查询出的所有数据:", allData);
+      setAllInventoryList(allData);//初始将所有数据存入状态
       const uniquePrices = Array.from(new Set(allPrices)); // 去重
-      console.log("查询出的所有价格:", uniquePrices);
+      //console.log("查询出的所有价格:", uniquePrices);
       setOptions(allOptions);
       setSelectedValue(uniquePrices[0] || '');
 
@@ -68,7 +73,23 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
+  //过滤数据代替数据库请求数据
+  const filterDataByValueAndType = async (value: string, type: string) => {
+    setLoading(true);
+    let checkedData = [];
+    for(let i=0; i<allInventoryList.length; i++){
+      if(allInventoryList[i]?.name.substring(0, 3) == value && allInventoryList[i]?.type == type){
+        checkedData.push(allInventoryList[i]);
+      }
+    }
+    //console.log("查询出来的数据checkedData",checkedData);
+    setInventoryList(checkedData);
+    setLoading(false);
+  }
+
+
   // 当前库存列表查询
+  /** 
   const fetchData = async (value: string, type: string) => {
     try {
       setLoading(true);
@@ -102,20 +123,24 @@ const InventoryList: Taro.FC = () => {
         allData = allData.concat(res.data);
       }
 
-      console.log("所有数据:", allData);
+      //console.log("所有数据:", allData);
       setInventoryList(allData);
       setLoading(false);
     } catch (error) {
       console.error('Fetch inventory error:', error);
       setLoading(false);
     }
-  };
+  };*/
 
   // 出入库返回后inventoryList相关的数据更新
   const filterData = async (id: string, quantity: string) => {
     //console.log('数据过滤id,quantity:',id,quantity);
     setInventoryList(prevInventoryList => 
       prevInventoryList.map(item => item._id === id ? { ...item, quantity: quantity } : item)
+    );
+    //总数据列表相应数据更新
+    setAllInventoryList(prevAllInventoryList => 
+      prevAllInventoryList.map(item => item._id === id ? { ...item, quantity: quantity } : item)
     );
   }
 
@@ -138,7 +163,8 @@ const InventoryList: Taro.FC = () => {
 
   useEffect(() => {
     if (selectedValue !== '' && selectedType !== '') {
-      fetchData(selectedValue, selectedType); // 数据更新
+      //fetchData(selectedValue, selectedType); // 数据更新
+      filterDataByValueAndType(selectedValue, selectedType)
     }
   }, [selectedValue, selectedType]); // 当 selectedValue 或 selectedType 变化时重新获取数据
 
