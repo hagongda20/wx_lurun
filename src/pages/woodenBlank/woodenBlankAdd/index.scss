@@ -1,0 +1,73 @@
+.inbound-page {
+  padding: 20px;
+
+  .item-info {
+    margin-bottom: 20px;
+    font-weight: bold;
+    .info-row{
+      margin-top: 20px;
+      .label {
+        font-size: 36px;
+        color: #333;
+      }
+
+      .value {
+        font-size: 36px;
+        color: #000;
+        margin-left: 10px;
+      }
+
+      
+    }
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .label {
+      font-size: 36px;
+      font-weight: bold;
+      color: #333;
+      margin-right: 10px;
+    }
+
+    .input {
+      flex: 1;
+      height: 70px;
+      border: 1px solid #ccc;
+      padding: 0 10px;
+      font-size: 36px;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .textarea_value{
+      border:1px solid #ccc;
+      width:100%;
+      margin-bottom: 40px;
+      font-size: 36px;
+    }
+  }
+
+  .date{
+    // border: 1px solid black;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    
+  }
+
+  .inbound-btn {
+    width: 100%;
+    height: 70px;
+    line-height: 70px;
+    text-align: center;
+    //vertical-align: ;
+    background-color: #9ae18f;
+    color: #0d0d0d;
+    font-weight: bold;
+    font-size: 28px;
+    border-radius: 20px;
+  }
+}

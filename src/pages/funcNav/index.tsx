@@ -24,15 +24,37 @@ const Home = () => {
     });
   };
 
+  const handleBlankClick = () => {
+    Taro.navigateTo({
+      url: '/pages/woodenBlank/index'
+    });
+  };
+  const handleBlankOperationClick = () => {
+    Taro.navigateTo({
+      url: '/pages/woodenBlank/woodenBlankOperation/index'
+    });
+  };
+  const handleBlankProductClick = () => {
+    Taro.navigateTo({
+      url: '/pages/woodenBlank/woodenBlankProduct/index'
+    });
+  };
+
   return (
     <View className='home'>
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany}>库存盘点</AtButton>
-        <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>
-        {/** 
+
         <View className='divider' />
+        <AtButton className='btn' onClick={handleBlankClick}>坯板查询</AtButton>
+        <AtButton className='btn' onClick={handleBlankOperationClick}>坯板流水</AtButton>
+        <AtButton className='btn' onClick={handleBlankProductClick}>坯板盘点</AtButton>
+        {/** 
+        
+        <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>
+        
 
 
         <AtButton className='btn' disabled onClick={handleProductClick}>工序设定</AtButton>

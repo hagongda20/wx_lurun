@@ -7,6 +7,11 @@ export default defineAppConfig({
     'pages/stock/stockOperation/index',
     'pages/product/index',
     'pages/product/productAdd/index',
+    'pages/woodenBlank/index',
+    'pages/woodenBlank/woodenBlankAdd/index',
+    'pages/woodenBlank/woodenBlankOperation/index',
+    'pages/woodenBlank/woodenBlankProduct/index',
+    'pages/woodenBlank/woodenBlankProduct/productAdd/index',
     //预留
   ],
   window: {

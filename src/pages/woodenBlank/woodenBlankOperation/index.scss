@@ -1,0 +1,207 @@
+.inventory-list {
+  padding: 5px 20px;
+  margin-bottom: 20px;
+
+  .operation-type{
+    margin-bottom: 20px;
+    display: flex;
+    .radiogroup{
+      
+      .radio{
+        margin-right: 30px;
+      }
+    }
+    .picker{
+      margin-left: 20px;
+    }
+    
+
+
+  }
+
+  .search-bar {
+    //clear: both;
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    .search-input {
+      flex: 1;
+      width: 60%;
+      height: 70px;
+      padding: 0 12px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 18px;
+    }
+
+    .search-btn {
+      width: 30%;
+      height: 70px;
+      line-height: 66px;
+      text-align: center center;
+      background-color: #bedda5;
+      color: #fff;
+      border-radius: 18px;
+    }
+  }
+
+  .list{
+    
+    .item {
+      display: flex;
+      border-bottom: 1px solid orange;
+      //text-align: center center; /* 垂直居中 */
+      //vertical-align: c;
+      //height: 50px;
+      padding-top: 10px;
+      margin-bottom: 15px;
+      .productName {
+        width: 45%;
+        border-right: 1px solid green;
+        white-space: pre-wrap; /* 或者 word-wrap: break-word; */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: 100%; /* 根据实际情况调整 */
+      }
+      .operationQuantity {
+        width: 15%;
+        //margin-right: 10px;
+        text-align: center;
+        border-right: 1px solid green;
+        display: inline-block;
+      }
+      .operationPerson {
+        width: 15%;
+        text-align: center;
+        //margin-right: 10px;
+        border-right: 1px solid green;
+      }
+      .operationTime {
+        width: 15%;
+        text-align: center;
+      }
+      .actions {
+        display: flex;
+        width: 5%;
+        text-align: center;
+        .action-btn {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+        }
+      }
+
+    }
+  }
+
+  
+
+  .operation-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    
+    .card {
+      width: 100%; /* 每个卡片占据整个宽度 */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: rgb(220, 247, 225);
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        background-color: #c7f5cf;
+        font-weight: bold;
+        border-radius: 8px;
+        .productName {
+          padding: 0 10px;
+          font-size: 36px; /* 字体大小设置为 28px */
+          font-weight: bold;
+          width: 68%;
+        }
+        .operationQuantity {
+          font-size: 36px; /* 数量字体大小为 24px */
+          color: #333;
+          width: 20%;
+        }
+        
+        .action-btn {
+          display: flex;
+          justify-content: center;
+          width: 6%;
+          background-color: #b4f6bf;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          //background-color: #fb8e8e;
+          //border-radius: 8px;   
+          //border-style: none;
+          cursor: pointer;
+        }
+        .action-btn:hover {
+          background-color: #0056b3;
+        }
+        
+      }
+
+      .card-body {
+        margin-bottom: 10px;
+        border: 1px solid #e0fbe4;
+        background-color:#f1faf3;
+        border-radius: 8px;
+        padding: 0 10px ;
+        .extra {
+          font-size: 36px; /* 备注字体大小为 24px */
+          color: orangered;
+          white-space: pre-wrap;
+          font-weight: bold;
+          
+        }
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: flex-end;
+        color: #000;
+        .operationPerson {
+          font-size: 32px; /* 人员字体大小为 24px */
+          color: #000;
+          margin-right: 25px;
+        }
+        .operationTime {
+          font-size: 32px; /* 时间字体大小为 18px */
+          color: #000;
+        }
+        
+        
+        
+      }
+
+    }
+
+    .accountant{
+      background-color: yellow;
+    }
+  }
+  .reach-bottom{
+    margin: 10px 0;
+    text-align: center;
+    font-size: 36px;
+    height: 100px;
+    border: 1px solid yellowgreen;
+    line-height: 100px; /* 设置和容器高度相同的 line-height */
+  }
+  .all-data-loaded{
+    margin: 10px 0;
+    text-align: center;
+    height: 100px;
+    font-size: 36px;
+    color: yellowgreen;
+    //border: 1px solid yellowgreen;
+    line-height: 100px; /* 设置和容器高度相同的 line-height */
+  }
+  
+}
