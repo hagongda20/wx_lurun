@@ -48,9 +48,9 @@ const Home = () => {
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany}>库存盘点</AtButton>
 
         <View className='divider' />
-        <AtButton className='btn' onClick={handleBlankClick}>坯板查询</AtButton>
-        <AtButton className='btn' onClick={handleBlankOperationClick}>坯板流水</AtButton>
-        <AtButton className='btn' onClick={handleBlankProductClick}>坯板盘点</AtButton>
+        <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany}>坯板查询</AtButton>
+        <AtButton className='btn' onClick={handleBlankOperationClick} disabled={!belongToCompany}>坯板流水</AtButton>
+        <AtButton className='btn' onClick={handleBlankProductClick} disabled={!belongToCompany}>坯板盘点</AtButton>
         {/** 
         
         <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>

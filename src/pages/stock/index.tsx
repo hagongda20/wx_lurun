@@ -226,11 +226,11 @@ const InventoryList: Taro.FC = () => {
               }}
             >
               <Text className='name'
-                style={{width: belongToCompany? '50%': '84%'}}
+                style={{width: (belongToCompany && role === '会计')? '50%': '84%'}}
               >{item.name}</Text>
               <Text className='quantity'>{item.quantity}</Text>
 
-              {belongToCompany && (<View className='actions'>                    
+              {belongToCompany && role === '会计' && (<View className='actions'>                    
                   <Button
                     className='action-btn stock-out-btn'
                     onClick={() => handleStockOut(item._id)}
