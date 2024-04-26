@@ -164,8 +164,16 @@ const InventoryList: Taro.FC = () => {
         <RadioGroup className='radiogroup' onChange={handleOperationTypeChange} value={operationType}>
           <Radio className='radio' value='出库' checked={operationType === '出库'}>出库</Radio>
           <Radio className='radio' value='入库' checked={operationType === '入库'}>入库</Radio>
-        </RadioGroup>      
+        </RadioGroup>  
+        <Picker mode='date' value={startDate} onChange={handleStartDateChange}>
+            <Text>{startDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+        </Picker>    
+        <Text className='separator'>-</Text>
+        <Picker mode='date' value={endDate} onChange={handleEndDateChange}>
+            <Text>{endDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+        </Picker>
       </View>
+      {/** 
       <View className='date-picker'>
         <View className='picker-container'>
           <Picker mode='date' value={startDate} onChange={handleStartDateChange}>
@@ -178,7 +186,7 @@ const InventoryList: Taro.FC = () => {
             <Text>{endDate}</Text><AtIcon value='calendar' size='20' color='#333' />
           </Picker>
         </View>
-      </View>
+      </View>*/}
       <View className='search-bar'>
         <Input
           className='search-input'
