@@ -160,18 +160,33 @@ const InventoryList: Taro.FC = () => {
 
   return (
     <View className='inventory-list'>
+      <View className='date-picker'>
+        <View className='picker-container'>
+          <Picker mode='date' value={startDate} onChange={handleStartDateChange}>
+            <Text>{startDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+          </Picker>
+        </View>
+        <Text className='separator'>---</Text>
+        <View className='picker-container'>
+          <Picker mode='date' value={endDate} onChange={handleEndDateChange}>
+            <Text>{endDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+          </Picker>
+        </View>
+      </View>
       <View className='operation-type'>
         <RadioGroup className='radiogroup' onChange={handleOperationTypeChange} value={operationType}>
           <Radio className='radio' value='出库' checked={operationType === '出库'}>出库</Radio>
           <Radio className='radio' value='入库' checked={operationType === '入库'}>入库</Radio>
         </RadioGroup>  
-        <Picker mode='date' value={startDate} onChange={handleStartDateChange}>
-            <Text>{startDate}</Text><AtIcon value='calendar' size='20' color='#333' />
-        </Picker>    
-        <Text className='separator'>-</Text>
-        <Picker mode='date' value={endDate} onChange={handleEndDateChange}>
-            <Text>{endDate}</Text><AtIcon value='calendar' size='20' color='#333' />
-        </Picker>
+        <Input
+          className='search-input'
+          placeholder='请输入商品关键字'
+          value={keyword}
+          onInput={handleKeywordChange}
+        />
+        <Button className='search-btn' onClick={handleSearch}>
+        <AtIcon value='search' size='18' color='#333' />
+        </Button>
       </View>
       {/** 
       <View className='date-picker'>
@@ -187,17 +202,7 @@ const InventoryList: Taro.FC = () => {
           </Picker>
         </View>
       </View>*/}
-      <View className='search-bar'>
-        <Input
-          className='search-input'
-          placeholder='请输入商品关键字'
-          value={keyword}
-          onInput={handleKeywordChange}
-        />
-        <Button className='search-btn' onClick={handleSearch}>
-          搜索
-        </Button>
-      </View>
+      
 
       {loading ? (
         <Text>Loading...</Text>
