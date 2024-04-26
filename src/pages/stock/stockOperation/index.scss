@@ -18,6 +18,28 @@
 
 
   }
+  
+  .date-picker {
+    display: flex;
+    align-items: center;
+  }
+  
+  .picker-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+  }
+  
+  .picker-hint {
+    margin-right: 5px;
+    color: #999;
+  }
+  
+  .separator {
+    margin: 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
 
   .search-bar {
     //clear: both;
