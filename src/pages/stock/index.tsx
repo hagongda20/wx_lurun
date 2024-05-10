@@ -35,6 +35,7 @@ const InventoryList: Taro.FC = () => {
           .field({ type: true, name: true, quantity: true })
           .skip(i * batchSize)
           .limit(batchSize)
+          //.orderBy('name','asc')
           .get();
 
         res.data.forEach(item => {
@@ -206,9 +207,11 @@ const InventoryList: Taro.FC = () => {
       <View className='navbar'>
         {/* 价格单选框 */}
         <RadioGroup onChange={handlePriceChange} className='radio-group'>
-          {Object.keys(options).map((price, index) => (
-            <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
-          ))}
+          {Object.keys(options)
+            .sort((a, b) => a.localeCompare(b)) // 按照价格顺序排序
+            .map((price, index) => (
+              <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
+            ))}
         </RadioGroup>
         {/* 商品类型单选框 */}
         <RadioGroup onChange={(e) => setSelectedType(e.detail.value)} className='radio-group'>
@@ -217,6 +220,7 @@ const InventoryList: Taro.FC = () => {
           ))}
         </RadioGroup>
       </View>
+
 
       {loading ? (
         <Text>Loading...</Text>
