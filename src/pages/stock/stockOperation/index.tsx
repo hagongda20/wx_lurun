@@ -228,8 +228,9 @@ const InventoryList: Taro.FC = () => {
                 <Text className='extra'>{item.extra}</Text>
               </View>
               <View className='card-footer'>
+                <Text className='operationTime'>{item.operationTime}</Text>
                 <Text className='operationPerson'>{item.operationPerson}</Text>
-                <Text className='operationTime'>{formatDate(item.createTime)}</Text>
+                <Text className='createTime'>{formatDate(item.createTime)}</Text>
               </View>
             </View>
           ))}

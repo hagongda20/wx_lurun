@@ -96,6 +96,7 @@
         width: 15%;
         text-align: center;
       }
+      
       .actions {
         display: flex;
         width: 5%;
@@ -186,9 +187,14 @@
           color: #000;
           margin-right: 25px;
         }
-        .operationTime {
+        .createTime {
           font-size: 32px; /* 时间字体大小为 18px */
           color: #000;
+        }
+        .operationTime {
+          width: 35%;
+          text-align: center;
+          float:left;
         }
         
         

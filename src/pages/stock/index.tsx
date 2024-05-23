@@ -56,10 +56,9 @@ const InventoryList: Taro.FC = () => {
         allData = allData.concat(res.data);//全数据state
       }
 
-      // 将 allPrices 排序
-      //allPrices.sort((a, b) => a.localeCompare(b));
-      //allData.sort();
       //console.log("查询出的所有数据:", allData);
+      // 将 allData 按照 name 属性排序
+      //allData.sort((a, b) => a.name.localeCompare(b.name));
       setAllInventoryList(allData);//初始将所有数据存入状态
       const uniquePrices = Array.from(new Set(allPrices)); // 去重
       //console.log("查询出的所有价格:", uniquePrices);
