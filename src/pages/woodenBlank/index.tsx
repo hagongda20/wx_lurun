@@ -64,9 +64,6 @@ const InventoryList: Taro.FC = () => {
       // 默认选中第一个价格和第一个类型
       if (uniquePrices.length > 0) {
         setSelectedValue(uniquePrices[0]);
-        if (allOptions[uniquePrices[0]]) {
-          setSelectedType(allOptions[uniquePrices[0]][0] || '');
-        }
       }
     } catch (error) {
       console.error('Fetch options error:', error);
@@ -74,11 +71,11 @@ const InventoryList: Taro.FC = () => {
   };
 
   //过滤数据代替数据库请求数据
-  const filterDataByValueAndType = async (value: string, type: string) => {
+  const filterDataByValueAndType = async (value: string) => {
     setLoading(true);
     let checkedData = [];
     for(let i=0; i<allInventoryList.length; i++){
-      if(allInventoryList[i]?.name.substring(0, 3) == value && allInventoryList[i]?.type == type){
+      if(allInventoryList[i]?.name.substring(0, 3) == value){
         checkedData.push(allInventoryList[i]);
       }
     }
@@ -117,9 +114,9 @@ const InventoryList: Taro.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedValue !== '' && selectedType !== '') {
+    if (selectedValue !== '') {
       //fetchData(selectedValue, selectedType); // 数据更新
-      filterDataByValueAndType(selectedValue, selectedType)
+      filterDataByValueAndType(selectedValue)
     }
   }, [selectedValue, selectedType]); // 当 selectedValue 或 selectedType 变化时重新获取数据
 
@@ -143,9 +140,6 @@ const InventoryList: Taro.FC = () => {
   const handlePriceChange = (e: any) => {
     const price = e.detail.value;
     setSelectedValue(price);
-    if (options[price]) {
-      setSelectedType(options[price][0] || '');
-    }
   };
 
   return (

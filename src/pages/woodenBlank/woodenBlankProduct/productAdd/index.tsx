@@ -7,7 +7,7 @@ import { db, getPrefixByCompany } from '../../../../utils';
 function ProductPage() {
   const [product, setProduct] = useState({
     name: '',
-    type: '',
+    type: '坯板',
     quantity: '',
   });
 
@@ -34,7 +34,7 @@ function ProductPage() {
 
   const handleFormSubmit = async (formData) => {
     const selectedValue = Taro.getCurrentInstance().router?.params.selectedValue;
-    const selectedType = Taro.getCurrentInstance().router?.params.selectedType;
+    //const selectedType = Taro.getCurrentInstance().router?.params.selectedType;
     try {
       if (Taro.getCurrentInstance().router?.params?.id) {
         // 如果是编辑模式，则更新商品信息
@@ -45,14 +45,14 @@ function ProductPage() {
           data: updatedData,
         });
         console.log('更新商品成功:', formData);
-        Taro.eventCenter.trigger('refreshPageProductList', selectedValue, selectedType);
+        Taro.eventCenter.trigger('refreshPageProductList', selectedValue);
       } else {
         // 否则，新增商品信息
         await db.collection(data_prefix+ 'woodenBlank').add({
           data: formData,
         });
         console.log('新增商品成功:', formData);
-        Taro.eventCenter.trigger('refreshPageProductList', selectedValue, selectedType);
+        Taro.eventCenter.trigger('refreshPageProductList', selectedValue);
       }
       // 返回上一页
       Taro.navigateBack();

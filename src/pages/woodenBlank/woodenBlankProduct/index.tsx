@@ -2,22 +2,14 @@ import Taro from '@tarojs/taro';
 import { View, Text, Input, Button, ScrollView, RadioGroup, Radio } from '@tarojs/components';
 import './index.scss';
 import { useEffect, useState } from 'react';
-import {db, getPrefixByCompany,exportToExcel} from '../../../utils'
-import {AtButton } from 'taro-ui'
+import { db, getPrefixByCompany, exportToExcel } from '../../../utils'
+import { AtButton } from 'taro-ui'
 
-// 模拟库存数据
-//const mockInventoryData = [
- //   { id: 1, name: '商品1', quantity: 10 },
- //   { id: 2, name: '商品2', quantity: 20 },
-///    { id: 3, name: '商品3', quantity: 15 },
-//  ];
-  
 const InventoryList: Taro.FC = () => {
   const [selectedValue, setSelectedValue] = useState(''); // 初始选中值为空
-  const [selectedType, setSelectedType] = useState(''); // 初始选中类型为空
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [options, setOptions] = useState<{ [key: string]: string[] }>({});
+  const [options, setOptions] = useState<string[]>([]);
 
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
@@ -27,7 +19,6 @@ const InventoryList: Taro.FC = () => {
   const fetchOptions = async () => {
     try {
       let allPrices: string[] = [];
-      let allOptions: { [key: string]: string[] } = {};
 
       const countRes = await db.collection(data_prefix + 'woodenBlank').count();
       const total = countRes.total;
@@ -37,7 +28,7 @@ const InventoryList: Taro.FC = () => {
 
       for (let i = 0; i < batchTimes; i++) {
         const res = await db.collection(data_prefix + 'woodenBlank')
-          .field({ type: true, name: true })
+          .field({ name: true })
           .skip(i * batchSize)
           .limit(batchSize)
           .get();
@@ -48,27 +39,18 @@ const InventoryList: Taro.FC = () => {
             if (!allPrices.includes(price)) {
               allPrices.push(price);
             }
-            if (!allOptions[price]) {
-              allOptions[price] = [];
-            }
-            if (item.type && !allOptions[price].includes(item.type)) {
-              allOptions[price].push(item.type);
-            }
           }
         });
       }
 
       const uniquePrices = Array.from(new Set(allPrices)); // 去重
       console.log("查询出的所有价格:", uniquePrices);
-      setOptions(allOptions);
+      setOptions(uniquePrices);
       setSelectedValue(uniquePrices[0] || '');
 
-      // 默认选中第一个价格和第一个类型
+      // 默认选中第一个价格
       if (uniquePrices.length > 0) {
         setSelectedValue(uniquePrices[0]);
-        if (allOptions[uniquePrices[0]]) {
-          setSelectedType(allOptions[uniquePrices[0]][0] || '');
-        }
       }
     } catch (error) {
       console.error('Fetch options error:', error);
@@ -76,7 +58,7 @@ const InventoryList: Taro.FC = () => {
   };
 
   // 当前库存列表查询
-  const fetchData = async (value: string, type: string) => {
+  const fetchData = async (value: string) => {
     try {
       setLoading(true);
       let query = db.collection(data_prefix + 'woodenBlank');
@@ -117,81 +99,72 @@ const InventoryList: Taro.FC = () => {
     fetchOptions(); // 获取商品类型和价格列表
   }, []);
 
-
-  //刷新页面
+  // 刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageProductList', (value: string, type:string) => fetchData(value, type));
+    Taro.eventCenter.on('refreshPageProductList', (value: string) => fetchData(value));
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
-      Taro.eventCenter.off('refreshPageProductList', (value: string, type:string) => fetchData(value, type));
+      Taro.eventCenter.off('refreshPageProductList', (value: string) => fetchData(value));
     };
   }, []);
- 
+
   useEffect(() => {
-    if (selectedValue !== '' && selectedType !== '') {
-      fetchData(selectedValue, selectedType); // 数据更新
+    if (selectedValue !== '') {
+      fetchData(selectedValue); // 数据更新
     }
-  }, [selectedValue, selectedType]); // 当 selectedValue 或 selectedType 变化时重新获取数据
-  
+  }, [selectedValue]); // 当 selectedValue 变化时重新获取数据
+
   // 产品删除
   const handleDelete = async (id: string) => {
     // 根据 id 进行入库操作
     console.log(`商品 ${id} 删除`);
-    await db.collection(data_prefix+ 'woodenBlank').doc(id).remove();
+    await db.collection(data_prefix + 'woodenBlank').doc(id).remove();
     // 更新状态以反映删除的变化
     setInventoryList(prevList => prevList.filter(item => item._id !== id));
-
   };
 
   // 产品修改
   const handleEdit = (id: string) => {
     console.log(`商品 ${id} 修改`);
     Taro.navigateTo({
-      url: `/pages/woodenBlank/woodenBlankProduct/productAdd/index?id=${id}&selectedValue=${selectedValue}&selectedType=${selectedType}`
+      url: `/pages/woodenBlank/woodenBlankProduct/productAdd/index?id=${id}&selectedValue=${selectedValue}`
     });
-
   };
 
   // 产品新增
-  const handleProdcutAddClick = (id: string) => {
-      console.log(`商品新增`);
-      Taro.navigateTo({
-        url: `/pages/woodenBlank/woodenBlankProduct/productAdd/index?selectedValue=${selectedValue}&selectedType=${selectedType}`
-      });
-
+  const handleProdcutAddClick = () => {
+    console.log(`商品新增`);
+    Taro.navigateTo({
+      url: `/pages/woodenBlank/woodenBlankProduct/productAdd/index?selectedValue=${selectedValue}`
+    });
   };
 
-  // 选择价格时默认选中第一个类型
+  // 选择价格时
   const handlePriceChange = (e: any) => {
     const price = e.detail.value;
     setSelectedValue(price);
-    if (options[price]) {
-      setSelectedType(options[price][0] || '');
-    }
   };
 
-  //导出数据到excel
+  // 导出数据到 excel
   const handleExport = async () => {
-   
-     exportToExcel(); // 调用导出函数获取文件路径
+    exportToExcel(); // 调用导出函数获取文件路径
   };
 
   return (
-      <ScrollView
-        className='inventory-list'
-        scrollY
-        scrollWithAnimation
-      >
+    <ScrollView
+      className='inventory-list'
+      scrollY
+      scrollWithAnimation
+    >
       <View className='navbar'>
         {/* 价格单选框 */}
         <RadioGroup onChange={handlePriceChange} className='radio-group'>
-          {Object.keys(options).map((price, index) => (
+          {options.map((price, index) => (
             <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
           ))}
         </RadioGroup>
-        
       </View>
       <View className='button-container'>
         <AtButton className='btn' onClick={handleExport}>数据导出</AtButton>
@@ -200,32 +173,30 @@ const InventoryList: Taro.FC = () => {
       {loading ? (
         <Text>Loading...</Text>
       ) : (
-      <View className='list'>
-        {inventoryList.map(item => (
-          <View className='item' key={item._id}>
-            <Text className='name'>{item.name}</Text>
-            <Text className='quantity'>{item.quantity}</Text>
-            <View className='actions'>
-              <Button
-                className='action-btn stock-out-btn'
-                onClick={() => handleEdit(item._id)}
-              >
-                修改
-              </Button>
-              <Button
-                className='action-btn stock-in-btn'
-                onClick={() => handleDelete(item._id)}
-              >
-                删除
-              </Button>
-              
-              
-              
+        <View className='list'>
+          {inventoryList.map(item => (
+            <View className='item' key={item._id}>
+              <Text className='name'>{item.name}</Text>
+              <Text className='quantity'>{item.quantity}</Text>
+              <View className='actions'>
+                <Button
+                  className='action-btn stock-out-btn'
+                  onClick={() => handleEdit(item._id)}
+                >
+                  修改
+                </Button>
+                <Button
+                  className='action-btn stock-in-btn'
+                  onClick={() => handleDelete(item._id)}
+                >
+                  删除
+                </Button>
+              </View>
             </View>
-          </View>
-        ))}
-      </View>)}
-      </ScrollView>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 };
 
