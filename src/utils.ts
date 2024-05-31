@@ -58,7 +58,6 @@ export const exportToExcel = async () => {
     const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
     const countRes = await db.collection(data_prefix + 'stock').count();
     const total = countRes.total;
-    // console.log("当前库存商品总记录数 count:", total, "company:", data_prefix);
     const batchSize = 20;
     const batchTimes = Math.ceil(total / batchSize);
 
@@ -84,7 +83,6 @@ export const exportToExcel = async () => {
 
     // 生成临时文件路径
     const filePath = Taro.env.USER_DATA_PATH + '/data.xlsx';
-    //const filePath = `${Taro.env.USER_DOWNLOAD_PATH}/data.xlsx`;
 
     // 将 ArrayBuffer 保存到文件
     Taro.getFileSystemManager().writeFile({
@@ -98,12 +96,15 @@ export const exportToExcel = async () => {
           duration: 2000
         });
 
-        // 给用户提供一个按钮，点击后打开文件
+        // 给用户提供一个按钮，点击后打开文件或分享文件
         Taro.showModal({
           title: '导出成功',
-          content: '是否打开导出的文件？',
+          content: '是否打开或分享导出的文件？',
+          confirmText: '打开',
+          cancelText: '分享',
           success: (res) => {
             if (res.confirm) {
+              // 打开文件
               Taro.openDocument({
                 filePath: filePath,
                 success: () => {
@@ -114,6 +115,23 @@ export const exportToExcel = async () => {
                   // 提示用户打开失败
                   Taro.showToast({
                     title: '打开失败，请重试',
+                    icon: 'none',
+                    duration: 2000
+                  });
+                }
+              });
+            } else if (res.cancel) {
+              // 分享文件
+              Taro.shareFileMessage({
+                filePath: filePath,
+                success: () => {
+                  console.log('分享成功');
+                },
+                fail: (err) => {
+                  console.error('分享失败:', err);
+                  // 提示用户分享失败
+                  Taro.showToast({
+                    title: '分享失败，请重试',
                     icon: 'none',
                     duration: 2000
                   });
