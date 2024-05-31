@@ -215,8 +215,8 @@ const InventoryList: Taro.FC = () => {
         </RadioGroup>
       </View>
       <View className='button-container'>
-        <AtButton className='btn' onClick={() => handleExport('stock')}>库存导出</AtButton>
         <AtButton className='btn' onClick={() => handleExport('opRecords')}>35天流水导出</AtButton>
+        <AtButton className='btn' onClick={() => handleExport('stock')}>库存导出</AtButton>
         <AtButton className='btn' onClick={handleProdcutAddClick}>产品新增</AtButton>
       </View>
       {loading ? (
