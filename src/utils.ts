@@ -53,19 +53,49 @@ export const getPrefixByCompany = (company: string) => {
 
 
 // 导出数据到 Excel
-export const exportToExcel = async () => {
+export const exportToExcel = async (dataList) => {
   try {
     const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
-    const countRes = await db.collection(data_prefix + 'stock').count();
-    const total = countRes.total;
-    const batchSize = 20;
-    const batchTimes = Math.ceil(total / batchSize);
-
     let allData = [];
-    for (let i = 0; i < batchTimes; i++) {
-      let batchQuery = db.collection(data_prefix + 'stock').skip(i * batchSize).limit(batchSize);
-      const res = await batchQuery.get();
-      allData = allData.concat(res.data);
+    let batchQuery;
+    const batchSize = 20;
+
+    if (dataList === 'stock') {
+      const countRes = await db.collection(data_prefix + 'stock').count();
+      const total = countRes.total;
+      const batchTimes = Math.ceil(total / batchSize);
+
+      for (let i = 0; i < batchTimes; i++) {
+        batchQuery = db.collection(data_prefix + 'stock').skip(i * batchSize).limit(batchSize);
+        const res = await batchQuery.get();
+        allData = allData.concat(res.data);
+      }
+    } else if (dataList === 'opRecords') {
+      const currentDate = new Date();
+      const pastDate = new Date();
+      pastDate.setDate(currentDate.getDate() - 35);
+
+      batchQuery = db.collection(data_prefix + 'opRecords').where({
+        createTime: db.command.gte(pastDate).and(db.command.lte(currentDate))
+      }).limit(batchSize);
+
+      let hasMore = true;
+      while (hasMore) {
+        const res = await batchQuery.get();
+        allData = allData.concat(res.data);
+        if (res.data.length < batchSize) {
+          hasMore = false;
+        } else {
+          batchQuery = db.collection(data_prefix + 'opRecords')
+            .where({
+              createTime: db.command.gte(pastDate).and(db.command.lte(currentDate)),
+              _id: db.command.gt(res.data[res.data.length - 1]._id)
+            })
+            .limit(batchSize);
+        }
+      }
+    } else {
+      throw new Error('Invalid dataList parameter');
     }
 
     // 数据转换为 Excel 格式

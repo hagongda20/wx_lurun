@@ -179,9 +179,19 @@ const InventoryList: Taro.FC = () => {
   };
 
   //导出数据到excel
-  const handleExport = async () => {
-   
-     exportToExcel(); // 调用导出函数获取文件路径
+  const handleExport = async (dataList) => {
+    try {
+      Taro.showLoading({ title: '导出中...' });
+      await exportToExcel(dataList); // 调用导出函数获取文件路径
+      Taro.hideLoading();
+    } catch (error) {
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '导出失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    }
   };
 
   return (
@@ -205,7 +215,8 @@ const InventoryList: Taro.FC = () => {
         </RadioGroup>
       </View>
       <View className='button-container'>
-        <AtButton className='btn' onClick={handleExport}>数据导出</AtButton>
+        <AtButton className='btn' onClick={() => handleExport('stock')}>库存导出</AtButton>
+        <AtButton className='btn' onClick={() => handleExport('opRecords')}>35天流水导出</AtButton>
         <AtButton className='btn' onClick={handleProdcutAddClick}>产品新增</AtButton>
       </View>
       {loading ? (
