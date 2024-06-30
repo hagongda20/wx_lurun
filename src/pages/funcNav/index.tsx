@@ -5,6 +5,7 @@ import './index.scss'
 
 const Home = () => {
   const belongToCompany = Taro.getStorageSync('belongToCompany');
+  const role = Taro.getStorageSync('role');
 
   const handleInventoryClick = () => {
     Taro.navigateTo({
@@ -43,14 +44,14 @@ const Home = () => {
   return (
     <View className='home'>
       <View className='btn-container'>
-        <AtButton className='btn' onClick={handleInventoryClick}>库存查询</AtButton>
-        <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany}>库存流水</AtButton>
-        <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany}>库存盘点</AtButton>
+        <AtButton className='btn' onClick={handleInventoryClick} disabled={!belongToCompany && role == "common"}>库存查询</AtButton>
+        <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany || role == "common"}>库存流水</AtButton>
+        <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany || role == "common"}>库存盘点</AtButton>
 
         <View className='divider' />
-        <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany}>坯板查询</AtButton>
-        <AtButton className='btn' onClick={handleBlankOperationClick} disabled={!belongToCompany}>坯板流水</AtButton>
-        <AtButton className='btn' onClick={handleBlankProductClick} disabled={!belongToCompany}>坯板盘点</AtButton>
+        <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany && role == "common"}>坯板查询</AtButton>
+        <AtButton className='btn' onClick={handleBlankOperationClick} disabled={!belongToCompany || role == "common"}>坯板流水</AtButton>
+        <AtButton className='btn' onClick={handleBlankProductClick} disabled={!belongToCompany || role == "common"}>坯板盘点</AtButton>
         {/** 
         
         <AtButton className='btn' onClick={handleProductClick} disabled>AI出库</AtButton>
