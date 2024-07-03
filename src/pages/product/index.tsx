@@ -110,6 +110,7 @@ const InventoryList: Taro.FC = () => {
       }
 
       console.log("所有数据:", allData);
+      allData.sort((a, b) => a.name.localeCompare(b.name));
       setInventoryList(allData);
       setLoading(false);
     } catch (error) {
