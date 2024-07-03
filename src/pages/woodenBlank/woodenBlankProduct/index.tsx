@@ -86,6 +86,7 @@ const InventoryList: Taro.FC = () => {
       }
 
       console.log("所有数据:", allData);
+      allData.sort((a, b) => a.name.localeCompare(b.name));
       setInventoryList(allData);
       setLoading(false);
     } catch (error) {
@@ -161,10 +162,11 @@ const InventoryList: Taro.FC = () => {
       <View className='navbar'>
         {/* 价格单选框 */}
         <RadioGroup onChange={handlePriceChange} className='radio-group'>
-          {options.map((price, index) => (
+          {options.sort((a, b) => a.localeCompare(b)).map((price, index) => (
             <Radio key={index} value={price} checked={selectedValue === price} className='radio'>{price}</Radio>
           ))}
         </RadioGroup>
+        
       </View>
       <View className='button-container'>
         <AtButton className='btn' onClick={handleExport}>数据导出</AtButton>
