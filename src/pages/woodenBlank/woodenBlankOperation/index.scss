@@ -2,40 +2,51 @@
   padding: 5px 20px;
   margin-bottom: 20px;
 
-  .operation-type{
-    margin-bottom: 20px;
+  .date-picker {
     display: flex;
+    align-items: center;
+  }
+  
+  .picker-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+  }
+  
+  .picker-hint {
+    margin-right: 5px;
+    color: #999;
+  }
+  
+  .separator {
+    margin: 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
+  .operation-type{
+    margin: 15px 0;
+    display: flex;
+    
     .radiogroup{
       
       .radio{
-        margin-right: 30px;
+        margin-top: 15px;
+        margin-right: 15px;
       }
     }
-    .picker{
-      margin-left: 20px;
-    }
     
-
-
-  }
-
-  .search-bar {
-    //clear: both;
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
     .search-input {
-      flex: 1;
-      width: 60%;
+      //flex: 1;
+      width: 40%;
       height: 70px;
       padding: 0 12px;
-      margin-right: 10px;
+      //margin-right: 5px;
       border: 1px solid #ccc;
       border-radius: 18px;
     }
 
     .search-btn {
-      width: 30%;
+      width: 13%;
       height: 70px;
       line-height: 66px;
       text-align: center center;
@@ -43,6 +54,10 @@
       color: #fff;
       border-radius: 18px;
     }
+  
+    
+
+
   }
 
   .list{

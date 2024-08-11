@@ -14,8 +14,11 @@ const InventoryList: Taro.FC = () => {
   const [undoItemId, setUndoItemId] = useState('');
   const [curItem, setCurItem] = useState({});
   const [totalRecords, setTotalRecords] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(getCurDate(new Date())); // 默认选择当天日期
+  //const [selectedDate, setSelectedDate] = useState(getCurDate(new Date())); // 默认选择当天日期
   const [totalQuantity, setTotalQuantity] = useState(0);
+
+  const [startDate, setStartDate] = useState(getCurDate(new Date()));
+  const [endDate, setEndDate] = useState(getCurDate(new Date()));
 
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
   const username = Taro.getStorageSync('username');
@@ -25,24 +28,21 @@ const InventoryList: Taro.FC = () => {
   useEffect(() => {
     setOperationList([]);
     fetchData();
-  }, [operationType,selectedDate]);
+  }, [operationType, startDate, endDate]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       let query = db.collection(data_prefix + 'woodenBlankRecords');
 
-      // 添加搜索条件
-      query = query.where({
+       // 添加搜索条件
+       query = query.where({
         productName: db.RegExp({
           regexp: keyword,
           options: 'i'
         }),
         operationType: operationType,
-        operationTime: db.RegExp({   //出库时间，操作时间是createTime
-          regexp: selectedDate,
-          options: 'i'
-        })
+        operationTime: db.command.gte(startDate).and(db.command.lte(endDate))
       });
 
       //查出所有记录数
@@ -147,25 +147,39 @@ const InventoryList: Taro.FC = () => {
     setOperationType(e.detail.value);
   };
 
+/** 
   const handleDateChange = (e) => {
     setSelectedDate(e.detail.value);
+  };*/
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.detail.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.detail.value);
   };
 
   return (
     <View className='inventory-list'>
+      <View className='date-picker'>
+        <View className='picker-container'>
+          <Picker mode='date' value={startDate} onChange={handleStartDateChange}>
+            <Text>{startDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+          </Picker>
+        </View>
+        <Text className='separator'>---</Text>
+        <View className='picker-container'>
+          <Picker mode='date' value={endDate} onChange={handleEndDateChange}>
+            <Text>{endDate}</Text><AtIcon value='calendar' size='20' color='#333' />
+          </Picker>
+        </View>
+      </View>
       <View className='operation-type'>
         <RadioGroup className='radiogroup' onChange={handleOperationTypeChange} value={operationType}>
           <Radio className='radio' value='出库' checked={operationType === '出库'}>出库</Radio>
           <Radio className='radio' value='入库' checked={operationType === '入库'}>入库</Radio>
-        </RadioGroup>
-        <Picker className='picker' mode='date' value={selectedDate} onChange={handleDateChange}>
-          
-            <Text>{selectedDate}</Text>
-            <AtIcon value='calendar' size='20' color='#333' />
-          
-        </Picker>
-      </View>
-      <View className='search-bar'>
+        </RadioGroup>  
         <Input
           className='search-input'
           placeholder='请输入商品关键字'
@@ -173,7 +187,7 @@ const InventoryList: Taro.FC = () => {
           onInput={handleKeywordChange}
         />
         <Button className='search-btn' onClick={handleSearch}>
-          搜索
+        <AtIcon value='search' size='18' color='#333' />
         </Button>
       </View>
 
