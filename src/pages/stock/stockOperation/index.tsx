@@ -236,14 +236,40 @@ const InventoryList: Taro.FC = () => {
           ))}
         </View>
       ) : (
-        <View className='list'>
+        <View className='operation-list'>
           {operationList.map(item => (
+            <View 
+              className={`card ${item.operationPerson != username ? ' accountant' : ''}`}
+              key={item._id}
+            >
+            <View className='card-header'>
+              <Text className='productName'>{item.productName}</Text>
+              <Text className='operationQuantity'>{'+' + item.operationQuantity}</Text>
+              {/**隶属于本公司的销售或会计才有撤销权利 */}
+              {belongToCompany && (item.operationPerson === Taro.getStorageSync('username') || role=='会计')&& (  
+                <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
+                  <AtIcon value='close' size='20' color='#333' />
+                </Button>
+              )}
+            </View>
+            <View className='card-body'>
+              <Text className='extra'>{item.extra}</Text>
+            </View>
+            <View className='card-footer'>
+              <Text className='operationTime'>{item.operationTime}</Text>
+              <Text className='operationPerson'>{item.operationPerson}</Text>
+              <Text className='createTime'>{formatDate(item.createTime)}</Text>
+            </View>
+          </View>
+
+
+            /**  20241202
             <View className='item' key={item._id}>
               <Text className='productName'>{item.productName}</Text>
               <Text className='operationQuantity'>{'+' + item.operationQuantity}</Text>
               <Text className='operationPerson'>{item.operationPerson}</Text>
               <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
-              {/**隶属于本公司的销售或会计才有撤销权利 */}
+              //隶属于本公司的销售或会计才有撤销权利
               {belongToCompany && (item.operationPerson === Taro.getStorageSync('username') || role=='会计') && (
                 <View className='actions'>
                   <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
@@ -251,7 +277,8 @@ const InventoryList: Taro.FC = () => {
                   </Button>
                 </View>
               )}
-            </View>
+            </View>*/
+            
           ))}
         </View>
       ))}
