@@ -1,0 +1,81 @@
+.ranking {
+  padding: 16px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  
+  .date-picker {
+    display: flex;
+    align-items: center;
+    width: 99%;
+  }
+  
+  .picker-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+  }
+  
+  .picker-hint {
+    margin-right: 5px;
+    color: #999;
+  }
+  
+  .separator {
+    margin: 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .ranking-list {
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .ranking-item {
+      display: flex;
+      border-bottom: 1px solid orange;
+      padding-top: 10px;
+      margin-bottom: 15px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .ranking-rank {
+        width: 10%;
+        padding-left: 15px;
+        font-size: 36px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+      }
+
+      .ranking-name {
+        font-size: 36px;
+        color: #333;
+        flex-grow: 1;
+        width: 59%;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+      }
+
+      .ranking-quantity {
+        font-size: 36px;
+        font-weight: bold;
+        color: #007aff;
+        width: 25%;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+      }
+    }
+
+    .no-data {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 36px;
+      color: #999;
+    }
+  }
+}

@@ -2,6 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/index/index',
     'pages/stock/index',
+    'pages/stock/statistics/index',
     'pages/stock/stockAdd/index',
     'pages/funcNav/index',
     'pages/stock/stockOperation/index',
