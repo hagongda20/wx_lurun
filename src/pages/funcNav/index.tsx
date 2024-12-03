@@ -53,7 +53,7 @@ const Home = () => {
         <AtButton className='btn' onClick={handleInventoryClick} disabled={!belongToCompany && role == "common"}>库存查询</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany || role == "common"}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany || role == "common"}>库存盘点</AtButton>
-        <AtButton className='btn' onClick={handleStatisticsClick} disabled={!belongToCompany || role == "common"}>销量统计</AtButton>
+        <AtButton className='btn' onClick={handleStatisticsClick} disabled={!belongToCompany}>销量统计</AtButton>
 
         <View className='divider' />
         <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany && role == "common"}>坯板查询</AtButton>
