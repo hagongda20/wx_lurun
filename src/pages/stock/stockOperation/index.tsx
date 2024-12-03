@@ -235,7 +235,7 @@ const InventoryList: Taro.FC = () => {
             </View>
           ))}
         </View>
-      ) : (
+      ) : ((data_prefix == "lr_" ? (
         <View className='operation-list'>
           {operationList.map(item => (
             <View 
@@ -280,7 +280,26 @@ const InventoryList: Taro.FC = () => {
             </View>*/
             
           ))}
-        </View>
+        </View>):(
+          <View className='list'>
+            {operationList.map(item => (
+              <View className='item' key={item._id}>
+                <Text className='productName'>{item.productName}</Text>
+                <Text className='operationQuantity'>{'+' + item.operationQuantity}</Text>
+                <Text className='operationPerson'>{item.operationPerson}</Text>
+                <Text className='operationTime'>{item.operationTime.substring(5)}</Text>
+                
+                {belongToCompany && (item.operationPerson === Taro.getStorageSync('username') || role=='会计') && (
+                  <View className='actions'>
+                    <Button className='action-btn' onClick={() => handleUndo(item._id, item)}>
+                      <AtIcon value='reload' size='18' color='#333' />
+                    </Button>
+                  </View>
+                )}
+              </View>
+            ))}
+         </View>
+        ))
       ))}
 
       <AtModal isOpened={undoModalVisible} onClose={cancelUndo}>
