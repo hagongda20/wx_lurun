@@ -19,47 +19,41 @@ const OutboundRanking: Taro.FC = () => {
 
   const fetchRankingData = async () => {
     setLoading(true);
+    console.log(startDate);  // 输出调试信息
     try {
-      const query = db
-        .collection(data_prefix + 'opRecords')
-        .where({
+      const result = await db.collection(data_prefix + 'opRecords')
+        .aggregate()
+        .match({
           operationType: '出库',
+          // 使用字符串直接进行日期范围筛选
           operationTime: db.command.gte(startDate).and(db.command.lte(endDate))
-        });
-
-      const countRes = await query.count();
-      const total = countRes.total;
-      const batchSize = 20;
-      const batchTimes = Math.ceil(total / batchSize);
-
-      let allData: any[] = [];
-      for (let i = 0; i < batchTimes; i++) {
-        const batchQuery = query.skip(i * batchSize).limit(batchSize);
-        const res = await batchQuery.get();
-        allData = allData.concat(res.data);
+        })
+        .group({
+          // 按产品名称分组
+          _id: '$productName',
+          // 将 operationQuantity 字符串转换为数字并计算总和
+          totalQuantity: db.command.aggregate.sum(db.command.aggregate.toDouble('$operationQuantity'))
+        })
+        .sort({
+          totalQuantity: -1  // 按总数量降序排序
+        })
+        .limit(1000)
+        .end();
+  
+      console.log(result);  // 输出调试信息
+      if (result.list && result.list.length > 0) {
+        setRankingData(result.list);
+      } else {
+        setRankingData([]);
       }
-
-      // 汇总每个产品的出库数量
-      const productMap = allData.reduce((acc, item) => {
-        const { productName, operationQuantity } = item;
-        if (!acc[productName]) {
-          acc[productName] = 0;
-        }
-        acc[productName] += Number(operationQuantity);
-        return acc;
-      }, {});
-
-      // 转换为数组并排序
-      const sortedRanking = Object.entries(productMap)
-        .map(([productName, totalQuantity]) => ({ productName, totalQuantity }))
-        .sort((a, b) => b.totalQuantity - a.totalQuantity);
-
-      setRankingData(sortedRanking);
     } catch (error) {
-      console.error('Error fetching ranking data:', error);
+      console.error('Error fetching ranking data with aggregation:', error);
     }
     setLoading(false);
   };
+  
+  
+  
 
   const handleStartDateChange = (e) => {
     setStartDate(e.detail.value);
@@ -90,7 +84,7 @@ const OutboundRanking: Taro.FC = () => {
           rankingData.map((item, index) => (
             <View className='ranking-item' key={index}>
               <Text className='ranking-rank'>{index + 1}</Text>
-              <Text className='ranking-name'>{item.productName}</Text>
+              <Text className='ranking-name'>{item._id}</Text>
               <Text className='ranking-quantity'>{item.totalQuantity}</Text>
             </View>
           ))
