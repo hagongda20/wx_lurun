@@ -229,11 +229,12 @@ const InventoryList: Taro.FC = () => {
         <Text>Loading...</Text>
       ) : (
         <View className='list' >
-          {inventoryList.map(item => (
+          {inventoryList.map((item, index) => (
             <View className='item'  
               key={item._id} 
               style={{
-                backgroundColor: Number(item.quantity) < 0 ? '#ffcccc' : 'white', 
+                //backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff', // 奇偶数背景色
+                backgroundColor: Number(item.quantity) < 0 ? '#ffcccc' : (index % 2 === 0 ? '#f5f5f5' : '#ffffff'), // 负库存为红色
               }}
             >
               <Text className='name'
