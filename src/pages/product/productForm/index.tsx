@@ -9,6 +9,7 @@ function ProductForm({ onSubmit, initialValues }) {
     quantity: '',
     extra: '',
   });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (initialValues) {
@@ -17,6 +18,22 @@ function ProductForm({ onSubmit, initialValues }) {
   }, [initialValues]);
 
   const handleSubmit = () => {
+    // 确保字段为有效字符串，并且进行空白字符去除
+    if (!(product.name && product.name.trim())) {
+      setError('产品名称不能为空');
+      return;
+    }
+    if (!(product.type && product.type.trim())) {
+      setError('产品类别不能为空');
+      return;
+    }
+    if (!(product.quantity && product.quantity.trim())) {
+      setError('数量不能为空');
+      return;
+    }
+
+    // 清空错误信息并提交
+    setError('');
     onSubmit(product);
   };
 
@@ -38,6 +55,8 @@ function ProductForm({ onSubmit, initialValues }) {
 
   return (
     <View className='product-form'>
+      {error && <Text className='error-message'>{error}</Text>}  {/* 显示错误信息 */}
+
       <View className='form-item'>
         <Input
           type='text'
@@ -46,6 +65,7 @@ function ProductForm({ onSubmit, initialValues }) {
           onInput={(e) => handleProductNameChange(e.target.value)}
         />
       </View>
+
       <View className='form-item'>
         <Input
           type='text'
@@ -54,6 +74,7 @@ function ProductForm({ onSubmit, initialValues }) {
           onInput={(e) => handleProductTypeChange(e.target.value)}
         />
       </View>
+
       <View className='form-item'>
         <Input
           type='number'
@@ -62,6 +83,7 @@ function ProductForm({ onSubmit, initialValues }) {
           onInput={(e) => handleQuantityChange(e.target.value)}
         />
       </View>
+
       <View className='form-item'>
         <Input
           type='text'
@@ -70,6 +92,7 @@ function ProductForm({ onSubmit, initialValues }) {
           onInput={(e) => handleRemarkChange(e.target.value)}
         />
       </View>
+
       <View className='btn-group'>
         <Button className='btn-submit' onClick={handleSubmit}>
           提交
