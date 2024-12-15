@@ -27,7 +27,7 @@ function ProductForm({ onSubmit, initialValues }) {
       setError('产品类别不能为空');
       return;
     }
-    if (!(product.quantity && product.quantity.trim())) {
+    if (!product.quantity ) {
       setError('数量不能为空');
       return;
     }

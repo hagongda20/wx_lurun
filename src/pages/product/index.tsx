@@ -26,50 +26,59 @@ const InventoryList: Taro.FC = () => {
   // 获取商品类型和价格列表
   const fetchOptions = async () => {
     try {
-      let allPrices: string[] = [];
-      let allOptions: { [key: string]: string[] } = {};
-
-      const countRes = await db.collection(data_prefix + 'stock').count();
-      const total = countRes.total;
-
-      const batchSize = 20;
-      const batchTimes = Math.ceil(total / batchSize);
-
-      for (let i = 0; i < batchTimes; i++) {
-        const res = await db.collection(data_prefix + 'stock')
-          .field({ type: true, name: true })
-          .skip(i * batchSize)
-          .limit(batchSize)
-          .get();
-
-        res.data.forEach(item => {
-          if (item.name) {
-            const price = item.name.substring(0, 3); // 获取名称的前三个字符
-            if (!allPrices.includes(price)) {
-              allPrices.push(price);
-            }
-            if (!allOptions[price]) {
-              allOptions[price] = [];
-            }
-            if (item.type && !allOptions[price].includes(item.type)) {
-              allOptions[price].push(item.type);
-            }
-          }
-        });
-      }
-
-      const uniquePrices = Array.from(new Set(allPrices)); // 去重
-      console.log("查询出的所有价格:", uniquePrices);
+      // 使用 db.command.aggregate 来聚合查询，并且获取所有数据
+      const res = await db.collection(data_prefix + 'stock')
+        .aggregate()
+        .match({
+          type: { $ne: '' } // 排除类型为空的记录
+        })
+        .project({
+          pricePrefix: db.command.aggregate.substr(['$name', 0, 3]), // 获取名称的前三个字符作为价格前缀
+          type: true,  // 保留类型字段
+          name: true,  // 保留商品名称字段
+          quantity: true, // 保留库存数量字段
+          _id: true,
+          extra: true,
+        })
+        .group({
+          _id: '$pricePrefix', // 按价格前缀分组
+          types: db.command.aggregate.addToSet('$type'), // 收集该前缀对应的所有类型
+          names: db.command.aggregate.addToSet('$name'), // 收集该前缀对应的所有商品名称
+          stockItems: db.command.aggregate.addToSet({
+            name: '$name',
+            type: '$type',
+            quantity: '$quantity',
+            _id: '$_id',
+            extra: '$extra',
+          }) // 将该前缀下的所有商品项收集到 stockItems 数组
+        })
+        .sort({
+          _id: 1 // 按价格前缀排序
+        })
+        .end();
+  
+      console.log('查询结果：', res);
+  
+      // 处理返回的数据
+      const allPrices = res.list.map(item => item._id); // 获取所有价格前缀
+      const allOptions = res.list.reduce((acc, item) => {
+        acc[item._id] = item.types.sort(); // 将类型进行排序
+        return acc;
+      }, {});
+  
+      // 对每个价格前缀下的商品项进行排序，并去掉类型为空的项
+      const allData = res.list.flatMap(item => {
+        // 过滤掉 type 为空的商品项
+        const sortedItems = item.stockItems
+          .filter(stockItem => stockItem.type) // 去掉类型为空的商品项
+          .sort((a, b) => a.name.localeCompare(b.name)); // 按商品名称排序
+        return sortedItems;
+      });
+  
+      // 更新状态
       setOptions(allOptions);
-      setSelectedValue(uniquePrices[0] || '');
-
-      // 默认选中第一个价格和第一个类型
-      if (uniquePrices.length > 0) {
-        setSelectedValue(uniquePrices[0]);
-        if (allOptions[uniquePrices[0]]) {
-          setSelectedType(allOptions[uniquePrices[0]][0] || '');
-        }
-      }
+      setSelectedValue(allPrices[0] || ''); // 默认选中第一个价格前缀
+      setSelectedType(allOptions[allPrices[0]]?.[0] || ''); // 默认选中第一个类型
     } catch (error) {
       console.error('Fetch options error:', error);
     }
@@ -128,11 +137,11 @@ const InventoryList: Taro.FC = () => {
   //刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageProductList', (value: string, type:string) => fetchData(value, type));
+    Taro.eventCenter.on('refreshPageProductList', (value: string, type:string) => {fetchOptions();fetchData(value, type)});
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
-      Taro.eventCenter.off('refreshPageProductList', (value: string, type:string) => fetchData(value, type));
+      Taro.eventCenter.off('refreshPageProductList', (value: string, type:string) => {fetchOptions();fetchData(value, type)});
     };
   }, []);
  
@@ -149,6 +158,7 @@ const InventoryList: Taro.FC = () => {
     await db.collection(data_prefix+'stock').doc(id).remove();
     // 更新状态以反映删除的变化
     setInventoryList(prevList => prevList.filter(item => item._id !== id));
+    fetchOptions();
 
   };
 
