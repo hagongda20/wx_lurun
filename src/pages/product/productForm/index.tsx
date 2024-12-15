@@ -27,10 +27,6 @@ function ProductForm({ onSubmit, initialValues }) {
       setError('产品类别不能为空');
       return;
     }
-    if (!product.quantity ) {
-      setError('数量不能为空');
-      return;
-    }
 
     // 清空错误信息并提交
     setError('');
@@ -77,7 +73,7 @@ function ProductForm({ onSubmit, initialValues }) {
 
       <View className='form-item'>
         <Input
-          type='number'
+          type='text'
           value={product.quantity}
           placeholder='请输入数量'
           onInput={(e) => handleQuantityChange(e.target.value)}

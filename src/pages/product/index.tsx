@@ -24,7 +24,7 @@ const InventoryList: Taro.FC = () => {
   const role = Taro.getStorageSync('role');
 
   // 获取商品类型和价格列表
-  const fetchOptions = async () => {
+  const fetchOptions = async (value: string, type: string) => {
     try {
       // 使用 db.command.aggregate 来聚合查询，并且获取所有数据
       const res = await db.collection(data_prefix + 'stock')
@@ -75,14 +75,22 @@ const InventoryList: Taro.FC = () => {
         return sortedItems;
       });
   
+      // 判断 selectedValue 和 selectedType 是否在选项中
+      const validSelectedValue = allPrices.includes(value) ? value : allPrices[0]; // 如果 selectedValue 不在价格前缀中，默认选中第一个
+      const validSelectedType = allOptions[validSelectedValue]?.includes(type) ? type : allOptions[validSelectedValue]?.[0] || ''; // 如果 selectedType 不在该价格前缀对应的类型中，默认选中第一个类型
+  
       // 更新状态
+      console.log('validSelectedValue:',validSelectedValue,'validSelectedType:',validSelectedType)
       setOptions(allOptions);
-      setSelectedValue(allPrices[0] || ''); // 默认选中第一个价格前缀
-      setSelectedType(allOptions[allPrices[0]]?.[0] || ''); // 默认选中第一个类型
+      setSelectedValue(validSelectedValue); // 设置选中的价格前缀
+      setSelectedType(validSelectedType); // 设置选中的类型
+  
     } catch (error) {
       console.error('Fetch options error:', error);
     }
   };
+  
+  
 
   // 当前库存列表查询
   const fetchData = async (value: string, type: string) => {
@@ -128,20 +136,20 @@ const InventoryList: Taro.FC = () => {
     }
   };
 
-  // 刷新页面
+  // 刷新页面，只执行一遍
   useEffect(() => {
-    fetchOptions(); // 获取商品类型和价格列表
+    fetchOptions(selectedValue, selectedType); // 获取商品类型和价格列表
   }, []);
 
 
   //刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageProductList', (value: string, type:string) => {fetchOptions();fetchData(value, type)});
+    Taro.eventCenter.on('refreshPageProductList', (value: string, type: string) => {fetchOptions(value, type);fetchData(value, type)});
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
-      Taro.eventCenter.off('refreshPageProductList', (value: string, type:string) => {fetchOptions();fetchData(value, type)});
+      Taro.eventCenter.off('refreshPageProductList', (value: string, type: string) => {fetchOptions(value, type);fetchData(value, type)});
     };
   }, []);
  
@@ -158,7 +166,7 @@ const InventoryList: Taro.FC = () => {
     await db.collection(data_prefix+'stock').doc(id).remove();
     // 更新状态以反映删除的变化
     setInventoryList(prevList => prevList.filter(item => item._id !== id));
-    fetchOptions();
+    fetchOptions(selectedValue, selectedType);
 
   };
 
