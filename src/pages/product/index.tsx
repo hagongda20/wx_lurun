@@ -198,6 +198,7 @@ const InventoryList: Taro.FC = () => {
   };
 
   //导出数据到excel
+  /** 
   const handleExport = async (dataList) => {
     try {
       Taro.showLoading({ title: '导出中...' });
@@ -211,7 +212,101 @@ const InventoryList: Taro.FC = () => {
         duration: 2000
       });
     }
+  };*/
+  // 导出数据到 Excel
+  const handleExport = async (dataList) => {
+    try {
+      Taro.showLoading({ title: '导出中...' });
+  
+      // 调用云函数
+      const res = await Taro.cloud.callFunction({
+        name: 'download', // 云函数名称
+        data: {
+          dataList, // 要导出的数据类型，例如 'stock' 或 'opRecords'
+          data_prefix, // 数据表前缀，根据业务逻辑动态传入
+        },
+      });
+  
+      Taro.hideLoading();
+  
+      if (res.result.code === 0) {
+        const fileID = res.result.fileID; // 云存储返回的文件 ID
+  
+        // 下载文件到本地
+        const downloadRes = await Taro.cloud.downloadFile({ fileID });
+        const filePath = downloadRes.tempFilePath;
+  
+        // 提示导出成功，并询问是否打开文件、分享文件或取消操作
+        Taro.showActionSheet({
+          itemList: ['打开文件', '分享文件'],  // 只有这两个选项
+          success: (actionRes) => {
+            switch (actionRes.tapIndex) {
+              case 0: // 打开文件
+                Taro.openDocument({
+                  filePath,
+                  success: () => {
+                    Taro.showToast({ title: '文件已打开', icon: 'success' });
+                  },
+                  fail: (err) => {
+                    console.error('打开文件失败:', err);
+                    Taro.showToast({
+                      title: '文件打开失败，请重试',
+                      icon: 'none',
+                    });
+                  },
+                });
+                break;
+              case 1: // 分享文件
+                Taro.shareFileMessage({
+                  filePath: filePath,
+                  success: () => {
+                    Taro.showToast({
+                      title: '文件分享成功',
+                      icon: 'success',
+                    });
+                  },
+                  fail: (err) => {
+                    console.error('分享失败:', err);
+                    Taro.showToast({
+                      title: '分享失败，请重试',
+                      icon: 'none',
+                    });
+                  }
+                });
+                break;
+              default:
+                break;
+            }
+          },
+          fail: (err) => {
+            if (err.errMsg === 'showActionSheet:fail cancel') {
+              console.log('用户取消了操作');
+            } else {
+              console.error('操作失败:', err);
+              Taro.showToast({
+                title: '操作失败，请重试',
+                icon: 'none',
+              });
+            }
+          }
+        });
+      } else {
+        throw new Error(res.result.message || '导出失败');
+      }
+    } catch (error) {
+      console.error('导出数据错误:', error);
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '导出失败，请重试',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
   };
+  
+  
+  
+
 
   return (
       <ScrollView
