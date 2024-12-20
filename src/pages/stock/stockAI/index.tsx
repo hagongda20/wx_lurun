@@ -18,6 +18,7 @@ const InventoryPage = () => {
   useEffect(() => {
     const loadInventory = async () => {
       try {
+        Taro.showLoading({ title: '数据加载...' });
         let query = db.collection(data_prefix + 'stock');
         const countRes = await query.count();
         const total = countRes.total;
@@ -32,9 +33,10 @@ const InventoryPage = () => {
           allData = allData.concat(res.data);
         }
 
-        console.log('-----allData:', allData);
+        //console.log('-----allData:', allData);
         setInventoryTable(allData); // 保存到状态
         setIsInventoryLoaded(true); // 标记加载完成
+        Taro.hideLoading();
       } catch (err) {
         console.error('Failed to fetch inventory:', err);
       }
@@ -59,12 +61,12 @@ const InventoryPage = () => {
           });
 
           const fileID = uploadRes.fileID;
-
+          Taro.showLoading({ title: '数据解析...' });
           const ocrResult = await Taro.cloud.callFunction({
             name: 'ocr',
             data: { fileID },
           });
-
+          Taro.hideLoading();
           if (ocrResult.result && Array.isArray(ocrResult.result.data)) {
             const flatData = ocrResult.result.data;
             console.log('OCR解析的原始数据:', flatData);
@@ -153,6 +155,8 @@ const InventoryPage = () => {
       });
       return; // 退出提交
     }
+    Taro.showLoading({ title: '数据上传...' });
+    
   
     // 取出纯数据部分
     const formattedData = editableData.map((item) => item.rowData);
@@ -162,7 +166,7 @@ const InventoryPage = () => {
     Taro.cloud.callFunction({
       name: 'uploadInventoryData',
       data: { inventoryData: formattedData, data_prefix:data_prefix }, //二维数组
-      success: () => Taro.showToast({ title: '数据上传成功', icon: 'success' }),
+      success: () => {Taro.hideLoading();Taro.showToast({ title: '数据上传成功', icon: 'success' })},
       fail: () => Taro.showToast({ title: '数据上传失败', icon: 'none' }),
     });
   };
@@ -170,7 +174,7 @@ const InventoryPage = () => {
   return (
     <View className="inventory-page">
       {/* 拍照/上传按钮 */}
-      <Button onClick={handleUploadImage}>拍照/上传图片</Button>
+      {isInventoryLoaded && (<Button onClick={handleUploadImage}>拍照/上传图片</Button>)}
       {image && <Image src={image} className="uploaded-image" />}
 
       {/* 显示解析的表格数据 */}
