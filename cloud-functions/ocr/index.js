@@ -19,8 +19,8 @@ exports.main = async (event, context) => {
     // 初始化客户端配置
     const clientConfig = {
       credential: {
-        secretId: "AKIDOeiZCcnkTyFKBoDOL4ZxKgsEPRN7uZ2J", // 替换为腾讯云的 SecretId
-        secretKey: "BGG6kEWhhbLtGSWO3Ws2b2NVQ7fGkGim", // 替换为腾讯云的 SecretKey
+        secretId: "SecretId", // 替换为腾讯云的 SecretId
+        secretKey: "SecretKey", // 替换为腾讯云的 SecretKey
       },
       region: "ap-guangzhou",
       profile: {
