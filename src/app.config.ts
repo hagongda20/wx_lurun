@@ -6,6 +6,7 @@ export default defineAppConfig({
     'pages/stock/stockAdd/index',
     'pages/funcNav/index',
     'pages/stock/stockOperation/index',
+    'pages/stock/stockAI/index',
     'pages/product/index',
     'pages/product/productAdd/index',
     'pages/woodenBlank/index',

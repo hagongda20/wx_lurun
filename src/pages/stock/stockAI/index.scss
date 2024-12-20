@@ -1,0 +1,47 @@
+.inventory-page {
+    padding: 16px;
+  }
+  
+  .uploaded-image {
+    width: 100%;
+    height: auto;
+    margin: 16px 0;
+  }
+  
+  .data-table {
+    margin-top: 16px;
+    width: 100%;
+  }
+  
+  .table-row {
+    display: flex;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  
+  .table-cell {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .table-cell.first-column {
+    flex: 3; /* 增加第一列的宽度比例 */
+  }
+  
+  .editable-cell {
+    flex: 1;
+    padding: 8px;
+    background-color: #ffcccc; /* 高亮显示匹配失败项 */
+    border: 1px solid #ff0000;
+    border-radius: 4px;
+  }
+  
+  .submit-button {
+    margin-top: 16px;
+  }
+  .cell-error{
+    background-color: red;
+  }
+  

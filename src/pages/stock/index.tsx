@@ -101,36 +101,6 @@ const InventoryList: Taro.FC = () => {
   const fetchData = async (value: string, type: string) => {
     try {
       setLoading(true);
-      let query = db.collection(data_prefix + 'stock');
-
-      // 添加搜索条件
-      query = query.where({
-        name: db.RegExp({
-          regexp: value,
-          options: 'i'
-        }),
-      });
-
-      if (type) {
-        query = query.where({
-          type: type
-        });
-      }
-
-      const countRes = await query.count();
-      const total = countRes.total;
-      console.log("当前库存商品总记录数 count:", total, "company:", data_prefix);
-
-      const batchSize = 20;
-      const batchTimes = Math.ceil(total / batchSize);
-
-      let allData = [];
-      for (let i = 0; i < batchTimes; i++) {
-        let batchQuery = query.skip(i * batchSize).limit(batchSize);
-        const res = await batchQuery.get();
-        allData = allData.concat(res.data);
-      }
-
       //console.log("所有数据:", allData);
       setInventoryList(allData);
       setLoading(false);

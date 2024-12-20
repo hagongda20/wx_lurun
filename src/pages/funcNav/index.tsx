@@ -47,6 +47,12 @@ const Home = () => {
     });
   }
 
+  const handleManyOut = () => {
+    Taro.navigateTo({
+      url: '/pages/stock/stockAI/index'
+    });
+  }
+
   return (
     <View className='home'>
       <View className='btn-container'>
@@ -54,6 +60,7 @@ const Home = () => {
         <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany || role == "common"}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany || role == "common"}>库存盘点</AtButton>
         <AtButton className='btn' onClick={handleStatisticsClick} disabled={!belongToCompany}>销量统计</AtButton>
+        <AtButton className='btn' onClick={handleManyOut} disabled={!belongToCompany}>批量出库</AtButton>
 
         <View className='divider' />
         <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany && role == "common"}>坯板查询</AtButton>

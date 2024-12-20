@@ -1,72 +1,208 @@
+import React, { useState, useEffect } from 'react';
 import Taro from '@tarojs/taro';
-import { useState } from 'react';
-import { View, Button } from '@tarojs/components';
-import { AtImagePicker } from 'taro-ui';
-import { ImagePickerFile } from 'taro-ui/types/image-picker';
+import { db, getPrefixByCompany } from '../../../utils';
+import { View, Button, Image, Input } from '@tarojs/components';
+import './index.scss';
 
-// 引入 Google Cloud Vision API
-const vision = require('@google-cloud/vision');
+const InventoryPage = () => {
+  const [image, setImage] = useState(null); // 上传的图片
+  const [parsedData, setParsedData] = useState([]); // OCR 原始解析数据
+  const [editableData, setEditableData] = useState([]); // 可编辑数据
+  const [inventoryTable, setInventoryTable] = useState([]); // 库存表数据
+  const [isInventoryLoaded, setIsInventoryLoaded] = useState(false); // 库存数据加载完成标记
 
-const ImageRecognition: Taro.FC = () => {
-  const [imageFile, setImageFile] = useState<ImagePickerFile[]>([]);
-  const [extractedText, setExtractedText] = useState<string>('');
+  const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
+  const stockInPerson = Taro.getStorageSync('username');
 
-  // 设置 Google Cloud 服务账号凭证文件路径
-  const credentialPath = '/path/to/your/credential.json';
-  const client = new vision.ImageAnnotatorClient({
-    keyFilename: credentialPath,
-  });
+  // 从数据库加载库存数据
+  useEffect(() => {
+    const loadInventory = async () => {
+      try {
+        let query = db.collection(data_prefix + 'stock');
+        const countRes = await query.count();
+        const total = countRes.total;
 
-  // 提取图片中的文字
-  const extractTextFromImage = async () => {
-    if (imageFile.length === 0) {
-      Taro.showToast({
-        title: '请先选择图片',
-        icon: 'none',
-      });
-      return;
-    }
+        const batchSize = 20;
+        const batchTimes = Math.ceil(total / batchSize);
 
-    const imageUrl = imageFile[0].url;
-    try {
-      const [result] = await client.textDetection(imageUrl);
-      const detections = result.textAnnotations;
-      
-      // 提取识别到的文本
-      let extractedText = '';
-      for (const text of detections) {
-        extractedText += text.description + '\n';
+        let allData = [];
+        for (let i = 0; i < batchTimes; i++) {
+          let batchQuery = query.skip(i * batchSize).limit(batchSize);
+          const res = await batchQuery.get();
+          allData = allData.concat(res.data);
+        }
+
+        console.log('-----allData:', allData);
+        setInventoryTable(allData); // 保存到状态
+        setIsInventoryLoaded(true); // 标记加载完成
+      } catch (err) {
+        console.error('Failed to fetch inventory:', err);
       }
-      
-      setExtractedText(extractedText);
-    } catch (error) {
-      console.error('Error extracting text:', error);
+    };
+
+    loadInventory(); // 加载库存表数据
+  }, []);
+
+  // 上传图片（拍照或从相册选择）
+  const handleUploadImage = () => {
+    Taro.chooseImage({
+      count: 1,
+      sourceType: ['album', 'camera'],
+      success: async (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        setImage(tempFilePath);
+
+        try {
+          const uploadRes = await Taro.cloud.uploadFile({
+            cloudPath: `uploads/${Date.now()}-image.jpg`,
+            filePath: tempFilePath,
+          });
+
+          const fileID = uploadRes.fileID;
+
+          const ocrResult = await Taro.cloud.callFunction({
+            name: 'ocr',
+            data: { fileID },
+          });
+
+          if (ocrResult.result && Array.isArray(ocrResult.result.data)) {
+            const flatData = ocrResult.result.data;
+            console.log('OCR解析的原始数据:', flatData);
+
+            const rows = flatData.reduce((acc, value, idx) => {
+              if (idx % 4 === 0) acc.push([]);
+              acc[acc.length - 1].push(value);
+              return acc;
+            }, []);
+            console.log('****************************rows', rows);
+
+            // 等待库存数据加载完成后进行匹配
+            if (!isInventoryLoaded) {
+              console.warn('库存数据尚未加载完成，稍后重试');
+              return;
+            }
+
+            const parsedRows = rows.map((row) => {
+              const ocrName = row[0];
+              //console.log('正在处理的 OCR 行:', row);
+              //console.log('OCR 名称:', ocrName);
+              //console.log('数据库数据：', inventoryTable);
+
+              // 在 inventoryTable 中查找匹配项
+              const match = inventoryTable.find((item) => {
+                //console.log('对比中: inventoryName:', item.name, 'OCR Name:', ocrName);
+                return item.name === ocrName;
+              });
+
+              //如果匹配成功，把原库存_id和quantity附加过来
+              if(match){
+                row.push(match._id, match.quantity); // 将匹配的 _id 和 quantity 附加到 row
+                row.push(stockInPerson);//操作员
+              }
+
+              return {
+                rowData: row, // 原始行数据
+                matched: !!match, // 是否找到匹配项
+              };
+            });
+
+            console.log('OCR解析后的数据:', parsedRows);
+            setParsedData(parsedRows);
+            setEditableData(parsedRows);
+          } else {
+            console.error('Invalid OCR result format:', ocrResult.result);
+            Taro.showToast({ title: 'OCR解析失败', icon: 'none' });
+          }
+        } catch (err) {
+          console.error('OCR 图片上传或解析失败:', err);
+          Taro.showToast({ title: '图片上传或解析失败', icon: 'none' });
+        }
+      },
+    });
+  };
+
+  // 更新编辑数据
+  const handleUpdateCell = (rowIndex, colIndex, value) => {
+    const updatedData = [...editableData];
+    updatedData[rowIndex].rowData[colIndex] = value;
+
+    // 如果修改的是名称列（第 0 列），重新检查匹配
+    if (colIndex === 0) {
+      const match = inventoryTable.find((item) => item.name === value);
+      //如果匹配成功，把原库存_id和quantity附加过来
+      if(match){
+        updatedData[rowIndex].rowData.push(match._id, match.quantity); // 将匹配的 _id 和 quantity 附加到 row
+        updatedData[rowIndex].rowData.push(stockInPerson);//操作员
+      }
+      updatedData[rowIndex].matched = !!match;
+    }
+
+    setEditableData(updatedData); // 更新状态
+  };
+
+  // 提交数据
+  const handleSubmit = () => {
+    // 检查是否存在未匹配的项
+    const hasUnmatched = editableData.some((item) => !item.matched);
+  
+    if (hasUnmatched) {
+      // 如果有未匹配的项，给出提示并退出
       Taro.showToast({
-        title: '提取文字出错',
+        title: '存在未匹配的商品，请检查',
         icon: 'none',
       });
+      return; // 退出提交
     }
+  
+    // 取出纯数据部分
+    const formattedData = editableData.map((item) => item.rowData);
+    console.log("formattedData:", formattedData);
+  
+    // 提交数据
+    Taro.cloud.callFunction({
+      name: 'uploadInventoryData',
+      data: { inventoryData: formattedData, data_prefix:data_prefix }, //二维数组
+      success: () => Taro.showToast({ title: '数据上传成功', icon: 'success' }),
+      fail: () => Taro.showToast({ title: '数据上传失败', icon: 'none' }),
+    });
   };
-
-  // 处理图片选择
-  const handleImageChange = (files: ImagePickerFile[]) => {
-    setImageFile(files);
-  };
-
+  
   return (
-    <View>
-      <AtImagePicker
-        files={imageFile}
-        onChange={handleImageChange}
-        mode='aspectFill'
-      />
-      <Button onClick={extractTextFromImage}>提取图片文字</Button>
-      <View>
-        <Text>提取结果：</Text>
-        <Text>{extractedText}</Text>
-      </View>
+    <View className="inventory-page">
+      {/* 拍照/上传按钮 */}
+      <Button onClick={handleUploadImage}>拍照/上传图片</Button>
+      {image && <Image src={image} className="uploaded-image" />}
+
+      {/* 显示解析的表格数据 */}
+      {parsedData.length > 0 && (
+        <View className="data-table">
+          {editableData.map((row, rowIndex) => (
+            <View key={rowIndex} className="table-row">
+              {row.rowData.map((cell, colIndex) => (
+                colIndex < 4 && ( // 只处理前三列
+                  <Input
+                    key={`${rowIndex}-${colIndex}`}
+                    value={cell}
+                    onInput={(e) => handleUpdateCell(rowIndex, colIndex, e.detail.value)}
+                    className={`table-cell ${colIndex === 0 ? 'first-column' : ''} ${colIndex === 0 && !row.matched ? 'cell-error' : ''}`}
+                    placeholder="输入内容"
+                  />
+                )
+              ))}
+
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* 一键上传按钮 */}
+      {parsedData.length > 0 && (
+        <Button onClick={handleSubmit} className="submit-button">
+          批量出库
+        </Button>
+      )}
     </View>
   );
 };
 
-export default ImageRecognition;
+export default InventoryPage;
