@@ -29,13 +29,11 @@ const InboundPage = () => {
     // 模拟根据 ID 查询商品信息，实际需要替换成云数据库查询逻辑
     const fetchItem = async () => {
       try {
-        // 这里替换成实际的查询商品信息逻辑
-        //const res = await queryItemById(id);
         console.log("商品入库：",id);
         const res = await db.collection(data_prefix+'stock').where({
           _id: id
         }).get();
-        //console.log("商品：",res);
+        console.log("商品：",res);
         setItem(res?.data[0]);
         setcurQuantity(res?.data[0]?.quantity);
       } catch (error) {

@@ -45,7 +45,7 @@ exports.main = async (event, context) => {
 
     // 提取返回的文本
     const textLines = result.TextDetections.map(item => item.DetectedText);
-    console.log("Step 5: Text lines extracted:", textLines);
+    //console.log("Step 5: Text lines extracted:", textLines);
     await cloud.deleteFile({fileList: [fileID],});
 
     return {

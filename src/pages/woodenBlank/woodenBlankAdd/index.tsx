@@ -21,21 +21,18 @@ const InboundPage = () => {
   const [btnState, setBtnState] = useState<boolean>(false);
 
   const router = useRouter();
-  const { id, operate, selectedValue, selectedType} = router.params;
+  const { id, operate, selectedValue} = router.params;
   // 从本地存储获取当前用户的信息
   const data_prefix = getPrefixByCompany(Taro.getStorageSync('company'));
 
   useEffect(() => {
-    // 模拟根据 ID 查询商品信息，实际需要替换成云数据库查询逻辑
     const fetchItem = async () => {
       try {
-        // 这里替换成实际的查询商品信息逻辑
-        //const res = await queryItemById(id);
-        console.log("商品入库：",id);
+        console.log("商品入库：",id,'data_prefix:',data_prefix);
         const res = await db.collection(data_prefix+'woodenBlank').where({
           _id: id
         }).get();
-        //console.log("商品：",res);
+        console.log("商品：",res);
         setItem(res?.data[0]);
         setcurQuantity(res?.data[0]?.quantity);
       } catch (error) {
@@ -121,7 +118,7 @@ const InboundPage = () => {
         data: operationRecord
       });
       console.log('入库操作记录已添加：', addRecordRes);
-      console.log('selectedValue:', selectedValue,'selectedType:',selectedType);
+      console.log('selectedValue:', selectedValue);
       
       // 入库成功后的操作，例如显示成功提示并返回上一页
       Taro.showToast({
@@ -131,7 +128,7 @@ const InboundPage = () => {
       });
       setBtnState(false);//入库成功后，解除按钮禁用
       //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
-      Taro.eventCenter.trigger('refreshPageStockList',item?._id, totolQuantity);
+      Taro.eventCenter.trigger('refreshPageStockList',selectedValue);
       Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
@@ -211,7 +208,7 @@ const InboundPage = () => {
       setBtnState(false);  //鼠标点击后禁用，防止再次点击
       //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
       //console.log('传值之前',item?._id, totolQuantity)
-      Taro.eventCenter.trigger('refreshPageStockList',item?._id, totolQuantity);
+      Taro.eventCenter.trigger('refreshPageStockList',selectedValue);
       Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);
