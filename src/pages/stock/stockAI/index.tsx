@@ -123,6 +123,83 @@ const InventoryPage = () => {
     });
   };
 
+  // 上传文件
+  const handleUploadFile = () => {
+    Taro.chooseMessageFile({
+      count: 1,
+      type: 'file',
+      extension: ['xlsx', 'xls'], // 支持的文件格式
+      success: async (res) => {
+        const tempFilePath = res.tempFiles[0].path;
+        console.log('选择的 Excel 文件路径:', tempFilePath);
+  
+        try {
+          const uploadRes = await Taro.cloud.uploadFile({
+            cloudPath: `uploads/${Date.now()}-file.xlsx`,
+            filePath: tempFilePath,
+          });
+  
+          const fileID = uploadRes.fileID;
+          console.log('上传的 Excel 文件 fileID:', fileID);
+  
+          Taro.showLoading({ title: '数据解析中...' });
+          const parseResult = await Taro.cloud.callFunction({
+            name: 'fileParseData', // 调用云函数 fileParseData
+            data: { fileID },
+          });
+          Taro.hideLoading();
+          console.log('parseResult:',parseResult);
+          if (parseResult.result && Array.isArray(parseResult.result.data)) {
+            const flatData = parseResult.result.data;
+            console.log('Excel 解析的原始数据:', flatData);
+  
+            // 将扁平数组转换为二维数组 (4 个字段为一组)
+            const rows = flatData.reduce((acc, value, idx) => {
+              if (idx % 4 === 0) acc.push([]);
+              acc[acc.length - 1].push(value);
+              return acc;
+            }, []);
+            console.log('转换后的行数据:', rows);
+  
+            // 等待库存数据加载完成后进行匹配
+            if (!isInventoryLoaded) {
+              console.warn('库存数据尚未加载完成，稍后重试');
+              return;
+            }
+  
+            const parsedRows = rows.map((row) => {
+              const excelName = row[0];
+              // 在 inventoryTable 中查找匹配项
+              const match = inventoryTable.find((item) => item.name === excelName);
+  
+              // 如果匹配成功，把原库存 _id 和 quantity 附加过来
+              if (match) {
+                row.push(match._id, match.quantity); // 将匹配的 _id 和 quantity 附加到 row
+                row.push(stockInPerson); // 操作员
+              }
+  
+              return {
+                rowData: row, // 原始行数据
+                matched: !!match, // 是否找到匹配项
+              };
+            });
+  
+            console.log('Excel 解析后的数据:', parsedRows);
+            setParsedData(parsedRows);
+            setEditableData(parsedRows);
+          } else {
+            console.error('无效的 Excel 解析结果格式:', parseResult.result);
+            Taro.showToast({ title: 'Excel 解析失败', icon: 'none' });
+          }
+        } catch (err) {
+          console.error('Excel 文件上传或解析失败:', err);
+          Taro.showToast({ title: '文件上传或解析失败', icon: 'none' });
+        }
+      },
+    });
+  };
+  
+
   // 更新编辑数据
   const handleUpdateCell = (rowIndex, colIndex, value) => {
     const updatedData = [...editableData];
@@ -176,6 +253,7 @@ const InventoryPage = () => {
       {/* 拍照/上传按钮 */}
       {isInventoryLoaded && (<Button onClick={handleUploadImage}>拍照/上传图片</Button>)}
       {image && <Image src={image} className="uploaded-image" />}
+      {isInventoryLoaded && (<Button onClick={handleUploadFile}>文件上传</Button>)}
 
       {/* 显示解析的表格数据 */}
       {parsedData.length > 0 && (

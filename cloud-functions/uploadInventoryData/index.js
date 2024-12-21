@@ -27,31 +27,31 @@ exports.main = async (event, context) => {
   console.log('formattedData:', formattedData);
 
   const tasks = []; // 用于存储所有的异步任务
+  const batchTimes = Math.ceil(formattedData.length / batchSize);
 
   try {
-    // 按批次处理数据
-    const batchTimes = Math.ceil(formattedData.length / batchSize);
+    // 事务处理
+    const transaction = await db.startTransaction();
+
     for (let i = 0; i < batchTimes; i++) {
       const batch = formattedData.slice(i * batchSize, (i + 1) * batchSize);
       console.log('Processing batch:', batch);
 
       // 遍历当前批次中的每一条数据
       for (const item of batch) {
-        //console.log('Processing item:', item);
-
-        // 更新库存表
-        const updateStockTask = db.collection(data_prefix + 'stock')
+        // 更新库存表操作
+        const updateStockTask = transaction.collection(data_prefix + 'stock')
           .doc(item.id)
           .update({
             data: {
               quantity: String(item.orginQuantity - item.quantity), // 减少库存
             },
-          })
+          });
 
         tasks.push(updateStockTask);
 
         // 添加操作记录
-        const addOpRecordTask = db.collection(data_prefix + 'opRecords')
+        const addOpRecordTask = transaction.collection(data_prefix + 'opRecords')
           .add({
             data: {
               productId: item.id,
@@ -72,9 +72,16 @@ exports.main = async (event, context) => {
     // 等待所有任务完成
     await Promise.all(tasks);
 
+    // 提交事务
+    await transaction.commit();
+
     return { success: true, message: "Data processed successfully" };
   } catch (err) {
-    console.error("Error inserting data:", err);
-    return { success: false, message: "Failed to insert data", error: err };
+    console.error("Error processing data:", err);
+    
+    // 如果发生错误，回滚事务
+    await transaction.rollback();
+
+    return { success: false, message: "Failed to process data", error: err };
   }
 };
