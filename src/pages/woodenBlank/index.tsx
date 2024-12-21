@@ -64,7 +64,7 @@ const InventoryList: Taro.FC = () => {
       setLoading(true);
       let query = db.collection(data_prefix + 'woodenBlank').where({
         name: db.RegExp({
-          regexp: value,
+          regexp: `^${value}`,
           options: 'i',
         }),
       });

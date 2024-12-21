@@ -90,8 +90,6 @@ const InventoryList: Taro.FC = () => {
     }
   };
   
-  
-
   // 当前库存列表查询
   const fetchData = async (value: string, type: string) => {
     try {
@@ -101,7 +99,7 @@ const InventoryList: Taro.FC = () => {
       // 添加搜索条件
       query = query.where({
         name: db.RegExp({
-          regexp: value,
+          regexp: `^${value}`,
           options: 'i'
         }),
       });
