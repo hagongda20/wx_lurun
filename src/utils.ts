@@ -70,7 +70,17 @@ export const exportToExcel = async (dataList) => {
         const res = await batchQuery.get();
         allData = allData.concat(res.data);
       }
-    } else if (dataList === 'opRecords') {
+    } else if(dataList === 'woodenBlank') {
+      const countRes = await db.collection(data_prefix + 'woodenBlank').count();
+      const total = countRes.total;
+      const batchTimes = Math.ceil(total / batchSize);
+
+      for (let i = 0; i < batchTimes; i++) {
+        batchQuery = db.collection(data_prefix + 'woodenBlank').skip(i * batchSize).limit(batchSize);
+        const res = await batchQuery.get();
+        allData = allData.concat(res.data);
+      }
+    }else if (dataList === 'opRecords') {
       const currentDate = new Date();
       const pastDate = new Date();
       pastDate.setDate(currentDate.getDate() - 35);
