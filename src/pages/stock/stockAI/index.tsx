@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Taro from '@tarojs/taro';
 import { db, getPrefixByCompany } from '../../../utils';
+// eslint-disable-next-line import/first
 import { View, Button, Image, Input } from '@tarojs/components';
 import './index.scss';
 
@@ -249,29 +250,52 @@ const InventoryPage = () => {
   };
   
   return (
-    <View className="inventory-page">
+    <View className='inventory-page'>
       {/* 拍照/上传按钮 */}
       {isInventoryLoaded && (<Button onClick={handleUploadImage}>拍照/上传图片</Button>)}
-      {image && <Image src={image} className="uploaded-image" />}
+      {image && <Image src={image} className='uploaded-image' />}
       {isInventoryLoaded && (<Button onClick={handleUploadFile}>文件上传</Button>)}
 
       {/* 显示解析的表格数据 */}
       {parsedData.length > 0 && (
-        <View className="data-table">
+        <View className='data-table'>
+          {/* 数据总条数展示 */}
+          <View className='data-summary'>
+          共 {editableData.length} 条数据，{editableData.reduce((sum, row) => sum + Number(row.rowData[1] || 0), 0)}张
+          </View>
           {editableData.map((row, rowIndex) => (
-            <View key={rowIndex} className="table-row">
-              {row.rowData.map((cell, colIndex) => (
-                colIndex < 4 && ( // 只处理前三列
+            <View key={rowIndex} className='table-row'>
+              {/* 第一行显示第一列和第二列 */}
+              <View className='table-row-line'>
+                {[row.rowData[0], row.rowData[1]].map((cell, colIndex) => (
                   <Input
-                    key={`${rowIndex}-${colIndex}`}
+                    key={`${rowIndex}-row1-${colIndex}`}
                     value={cell}
-                    onInput={(e) => handleUpdateCell(rowIndex, colIndex, e.detail.value)}
-                    className={`table-cell ${colIndex === 0 ? 'first-column' : ''} ${colIndex === 0 && !row.matched ? 'cell-error' : ''}`}
-                    placeholder="输入内容"
+                    onInput={(e) =>
+                      handleUpdateCell(rowIndex, colIndex, e.detail.value) // colIndex 对应列索引
+                    }
+                    className={`table-cell ${
+                      colIndex === 0 ? "first-column" : ""
+                    } ${colIndex === 0 && !row.matched ? "cell-error" : ""}`}
+                    placeholder='输入内容'
                   />
-                )
-              ))}
-
+                ))}
+              </View>
+        
+              {/* 第二行显示第三列和第四列 */}
+              <View className='table-row-line'>
+                {[row.rowData[2], row.rowData[3]].map((cell, colIndex) => (
+                  <Input
+                    key={`${rowIndex}-row2-${colIndex}`}
+                    value={cell}
+                    onInput={(e) =>
+                      handleUpdateCell(rowIndex, colIndex + 2, e.detail.value) // colIndex + 2 对应列索引
+                    }
+                    className='table-cell'
+                    placeholder='输入内容'
+                  />
+                ))}
+              </View>
             </View>
           ))}
         </View>
@@ -279,7 +303,7 @@ const InventoryPage = () => {
 
       {/* 一键上传按钮 */}
       {parsedData.length > 0 && (
-        <Button onClick={handleSubmit} className="submit-button">
+        <Button onClick={handleSubmit} className='submit-button'>
           批量出库
         </Button>
       )}
