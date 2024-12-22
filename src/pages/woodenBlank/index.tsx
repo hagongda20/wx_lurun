@@ -49,8 +49,16 @@ const InventoryList: Taro.FC = () => {
         acc[item._id] = item.types.sort(); // 将类型排序
         return acc;
       }, {});
-      const validSelectedValue = allPrices.includes(value) ? value : allPrices[0];
 
+      // 对每个价格前缀下的商品项进行排序，并去掉类型为空的项
+      const allData = res.list.flatMap(item => {
+        // 过滤掉 type 为空的商品项
+        const sortedItems = item.stockItems
+          .sort((a, b) => a.name.localeCompare(b.name)); // 按商品名称排序
+        return sortedItems;
+      });
+      const validSelectedValue = allPrices.includes(value) ? value : allPrices[0];
+      setAllInventoryList(allData); // 设置所有商品项数据
       setOptions(allOptions); // 更新价格前缀的选项
       setSelectedValue(validSelectedValue); // 更新选中的价格前缀
     } catch (error) {
@@ -59,6 +67,7 @@ const InventoryList: Taro.FC = () => {
   };
 
   // 获取当前库存数据
+  /**
   const fetchData = async (value: string) => {
     try {
       setLoading(true);
@@ -87,7 +96,22 @@ const InventoryList: Taro.FC = () => {
       console.error('Fetch inventory error:', error);
       setLoading(false);
     }
-  };
+  }; */
+
+  //过滤数据代替数据库请求数据
+  const filterDataByValue = async (value: string) => {
+    console.log("name_:",value);
+    setLoading(true);
+    let checkedData = [];
+    for(let i=0; i<allInventoryList.length; i++){
+      if(allInventoryList[i]?.name.substring(0, 3).includes(value)){
+        checkedData.push(allInventoryList[i]);
+      }
+    }
+    //console.log("查询出来的数据checkedData",checkedData);
+    setInventoryList(checkedData);
+    setLoading(false);
+  }
 
   // 出入库返回后inventoryList相关的数据更新
   const filterData = async (id: string, quantity: string) => {
@@ -108,25 +132,25 @@ const InventoryList: Taro.FC = () => {
 
   useEffect(() => {
     if (selectedValue) {
-      fetchData(selectedValue); // 根据选中的价格前缀加载数据
+      filterDataByValue(selectedValue)
     }
   }, [selectedValue]);
 
   //刷新页面
   useEffect(() => {
     // 监听事件，并在收到事件时执行 refreshHandler
-    Taro.eventCenter.on('refreshPageStockList', (value: string) => {fetchOptions(value);fetchData(value)});
+    Taro.eventCenter.on('refreshPageStockList', (id: string, quantity:string) => filterData(id, quantity));
 
     // 组件卸载时取消监听，避免内存泄漏
     return () => {
       //Taro.eventCenter.off('refreshPageStockList', (value: string, type:string) => fetchData(value, type));
-      Taro.eventCenter.on('refreshPageStockList',  (value: string) => {fetchOptions(value);fetchData(value)});
+      Taro.eventCenter.on('refreshPageStockList', (id: string, quantity:string) => filterData(id, quantity));
     };
   }, []);
 
   useEffect(() => {
     if (selectedValue !== '') {
-      fetchData(selectedValue)
+      filterDataByValue(selectedValue)
     }
   }, [selectedValue]); // 当 selectedValue 或 selectedType 变化时重新获取数据
 

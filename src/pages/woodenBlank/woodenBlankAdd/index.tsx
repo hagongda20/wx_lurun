@@ -100,7 +100,7 @@ const InboundPage = () => {
       const stockInPerson = Taro.getStorageSync('username');
       // 获取当前时间作为操作时间
       const createTime = new Date();
-      console.log("创建时间为createTime：", createTime);
+      console.log("创建时间为createTime:", createTime);
       // 构建入库操作记录对象
       const operationRecord = {
         productId: id,
@@ -128,7 +128,7 @@ const InboundPage = () => {
       });
       setBtnState(false);//入库成功后，解除按钮禁用
       //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
-      Taro.eventCenter.trigger('refreshPageStockList',selectedValue);
+      Taro.eventCenter.trigger('refreshPageStockList',id,totolQuantity);
       Taro.navigateBack();
     } catch (error) {
       console.error('入库失败:', error);
@@ -208,7 +208,7 @@ const InboundPage = () => {
       setBtnState(false);  //鼠标点击后禁用，防止再次点击
       //Taro.eventCenter.trigger('refreshPageStockList',selectedValue, selectedType);
       //console.log('传值之前',item?._id, totolQuantity)
-      Taro.eventCenter.trigger('refreshPageStockList',selectedValue);
+      Taro.eventCenter.trigger('refreshPageStockList',id,totolQuantity);
       Taro.navigateBack();
     } catch (error) {
       console.error('出库失败:', error);
