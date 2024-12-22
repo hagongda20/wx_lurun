@@ -14,55 +14,81 @@ exports.main = async (event, context) => {
     return { success: false, message: "Invalid input data" };
   }
 
-  const formattedData = inventoryData.map(
-    ([name, quantity, createTime, extra, id, orginQuantity, stockInPerson]) => ({
-      name,
-      quantity: Number(quantity), // 确保数量是数字类型
-      createTime,
-      extra,
-      id: String(id), // 确保 id 是字符串类型
-      orginQuantity: Number(orginQuantity),
-      stockInPerson,
-    })
-  );
+  // Step 1: 数据预处理 - 合并库存变更
+  const productMap = {};
+  for (const [
+    name,
+    quantity,
+    createTime,
+    extra,
+    id,
+    orginQuantity,
+    stockInPerson,
+  ] of inventoryData) {
+    // 合并库存更新
+    if (!productMap[id]) {
+      productMap[id] = {
+        id,
+        name,
+        orginQuantity,
+        totalQuantity: 0, // 累加出库数量
+      };
+    }
+    productMap[id].totalQuantity += Number(quantity); // 累加出库数量
+  }
 
-  console.log("formattedData:", formattedData);
+  const mergedData = Object.entries(productMap).map(([id, data]) => ({
+    id,
+    ...data,
+  }));
+
+  console.log("Merged Data for Stock Update:", mergedData);
 
   try {
-    // 事务处理
+    // Step 2: 开启事务
     const transaction = await db.startTransaction();
-    const batchTimes = Math.ceil(formattedData.length / batchSize);
 
-    for (let i = 0; i < batchTimes; i++) {
-      const batch = formattedData.slice(i * batchSize, (i + 1) * batchSize);
-      console.log("Processing batch:", batch);
+    // Step 3: 更新库存数据
+    for (const item of mergedData) {
+      const { id, name, totalQuantity, orginQuantity } = item;
 
-      // 遍历当前批次中的每一条数据
-      for (const item of batch) {
-        // 更新库存表操作
-        await transaction
-          .collection(data_prefix + "stock")
-          .doc(item.id)
-          .update({
-            data: {
-              quantity: item.orginQuantity - item.quantity, // 减少库存
-            },
-          });
+      // 计算新库存
+      const newQuantity = orginQuantity - totalQuantity;
+      /** 库存可以为负，所以注释掉
+      if (newQuantity < 0) {
+        throw new Error(`库存不足：产品 ${name} (ID: ${id}) 的库存不足`);
+      }*/
 
-        // 添加操作记录
-        await transaction.collection(data_prefix + "opRecords").add({
-          data: {
-            productId: item.id,
-            productName: item.name,
-            operationType: "出库",
-            operationQuantity: item.quantity,
-            operationTime: item.createTime,
-            createTime: new Date(),
-            operationPerson: item.stockInPerson,
-            extra: item.extra,
-          },
-        });
-      }
+      // 更新库存表
+      await transaction.collection(data_prefix + "stock").doc(id).update({
+        data: {
+          quantity: newQuantity, // 减少库存
+        },
+      });
+    }
+
+    // Step 4: 插入操作记录（不合并，每条记录原样插入）
+    for (const [
+      name,
+      quantity,
+      createTime,
+      extra,
+      id,
+      orginQuantity,
+      stockInPerson,
+    ] of inventoryData) {
+      await transaction.collection(data_prefix + "opRecords").add({
+        data: {
+          productId: id,
+          productName: name,
+          operationType: "出库",
+          operationQuantity: quantity,
+          operationTime: createTime,
+          createTime: new Date(),
+          operationPerson: stockInPerson,
+          extra,
+        },
+      });
     }
 
     // 提交事务
