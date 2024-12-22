@@ -244,7 +244,17 @@ const InventoryPage = () => {
     Taro.cloud.callFunction({
       name: 'uploadInventoryData',
       data: { inventoryData: formattedData, data_prefix:data_prefix }, //二维数组
-      success: () => {Taro.hideLoading();Taro.showToast({ title: '数据上传成功', icon: 'success' })},
+      success: () => {
+        Taro.hideLoading(); // 隐藏加载提示
+        Taro.showToast({
+          title: '数据上传成功',
+          icon: 'success',
+          duration: 2000, // 提示持续时间，单位为毫秒
+        });
+        setTimeout(() => {
+          Taro.navigateBack(); // 返回上一界面
+        }, 2000); // 确保提示显示后再返回，避免界面过快切换
+      },
       fail: () => Taro.showToast({ title: '数据上传失败', icon: 'none' }),
     });
   };
