@@ -20,26 +20,42 @@ const InventoryPage = () => {
     const loadInventory = async () => {
       try {
         Taro.showLoading({ title: '数据加载...' });
-        let query = db.collection(data_prefix + 'stock');
-        const countRes = await query.count();
+  
+        // 1. 获取总数据量
+        const countRes = await db.collection(data_prefix + 'stock').count();
         const total = countRes.total;
-
-        const batchSize = 20;
-        const batchTimes = Math.ceil(total / batchSize);
-
+  
+        // 2. 定义分页查询参数
+        const batchSize = 20; // 每次获取的最大条数（微信限制）
+        const batchTimes = Math.ceil(total / batchSize); // 需要查询的总次数
+  
+        // 3. 批量加载数据
         let allData = [];
-        for (let i = 0; i < batchTimes; i++) {
-          let batchQuery = query.skip(i * batchSize).limit(batchSize);
+        const fetchData = async (batchIndex) => {
+          const batchQuery = db.collection(data_prefix + 'stock')
+            .skip(batchIndex * batchSize)
+            .limit(batchSize);
           const res = await batchQuery.get();
-          allData = allData.concat(res.data);
+          return res.data;
+        };
+  
+        const promises = [];
+        for (let i = 0; i < batchTimes; i++) {
+          promises.push(fetchData(i)); // 每个批次查询放入 promise
         }
-
-        //console.log('-----allData:', allData);
-        setInventoryTable(allData); // 保存到状态
-        setIsInventoryLoaded(true); // 标记加载完成
+  
+        const results = await Promise.all(promises); // 并发加载所有批次数据
+        results.forEach(batch => {
+          allData = allData.concat(batch); // 合并所有批次数据
+        });
+  
+        // 4. 保存到状态
+        setInventoryTable(allData);
+        setIsInventoryLoaded(true);
         Taro.hideLoading();
       } catch (err) {
         console.error('Failed to fetch inventory:', err);
+        Taro.hideLoading();
       }
     };
 
