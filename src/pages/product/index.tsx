@@ -159,14 +159,29 @@ const InventoryList: Taro.FC = () => {
   
   // 产品删除
   const handleDelete = async (id: string) => {
-    // 根据 id 进行入库操作
-    console.log(`商品 ${id} 删除`);
-    await db.collection(data_prefix+'stock').doc(id).remove();
-    // 更新状态以反映删除的变化
-    setInventoryList(prevList => prevList.filter(item => item._id !== id));
-    fetchOptions(selectedValue, selectedType);
-
+    Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除该商品吗？删除后无法恢复！',
+      confirmColor: '#d9534f', // 红色强调确认按钮
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await db.collection(data_prefix + 'stock').doc(id).remove();
+            Taro.showToast({ title: '删除成功', icon: 'success' });
+            // 更新状态以反映删除的变化
+            setInventoryList(prevList => prevList.filter(item => item._id !== id));
+            fetchOptions(selectedValue, selectedType);
+          } catch (error) {
+            console.error('删除失败:', error);
+            Taro.showToast({ title: '删除失败，请重试', icon: 'none' });
+          }
+        } else if (res.cancel) {
+          console.log('用户取消了删除操作');
+        }
+      }
+    });
   };
+  
 
   // 产品修改
   const handleEdit = (id: string) => {
@@ -354,9 +369,7 @@ const InventoryList: Taro.FC = () => {
               >
                 删除
               </Button>
-              
-              
-              
+            
             </View>
           </View>
         ))}
