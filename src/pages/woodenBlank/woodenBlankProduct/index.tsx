@@ -113,14 +113,34 @@ const InventoryList: Taro.FC = () => {
 
   // 删除商品
   const handleDelete = async (id: string) => {
-    try {
-      await db.collection(data_prefix + 'woodenBlank').doc(id).remove();
-      setInventoryList(prevList => prevList.filter(item => item._id !== id)); // 更新列表
-      fetchOptions(selectedValue); // 刷新选项
-    } catch (error) {
-      console.error(`删除商品 ${id} 失败:`, error);
+    const confirmRes = await Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除该产品吗？此操作不可恢复。',
+      confirmText: '删除',
+      cancelText: '取消'
+    });
+  
+    if (confirmRes.confirm) {
+      try {
+        await db.collection(data_prefix + 'woodenBlank').doc(id).remove();
+        setInventoryList(prevList => prevList.filter(item => item._id !== id)); // 更新列表
+        fetchOptions(selectedValue); // 刷新选项
+        Taro.showToast({
+          title: '删除成功',
+          icon: 'success',
+          duration: 1500
+        });
+      } catch (error) {
+        console.error(`删除商品 ${id} 失败:`, error);
+        Taro.showToast({
+          title: '删除失败，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+      }
     }
   };
+  
 
   // 修改商品
   const handleEdit = (id: string) => {

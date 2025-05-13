@@ -161,7 +161,7 @@ const InventoryList: Taro.FC = () => {
   const handleDelete = async (id: string) => {
     Taro.showModal({
       title: '确认删除',
-      content: '确定要删除该商品吗？删除后无法恢复！',
+      content: '确定要删除该产品吗？删除后无法恢复！',
       confirmColor: '#d9534f', // 红色强调确认按钮
       success: async (res) => {
         if (res.confirm) {
