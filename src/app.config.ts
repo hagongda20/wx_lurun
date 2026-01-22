@@ -14,6 +14,7 @@ export default defineAppConfig({
     'pages/woodenBlank/woodenBlankOperation/index',
     'pages/woodenBlank/woodenBlankProduct/index',
     'pages/woodenBlank/woodenBlankProduct/productAdd/index',
+    'pages/stock/newQuery/index',
     //预留
   ],
   window: {

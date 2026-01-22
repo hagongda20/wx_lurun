@@ -53,10 +53,17 @@ const Home = () => {
     });
   }
 
+  const handleNewStockQuery = () => {
+    Taro.navigateTo({
+      url: '/pages/stock/newQuery/index'
+    });
+  };
+
   return (
     <View className='home'>
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick} disabled={!belongToCompany && role == "common"}>库存查询</AtButton>
+        <AtButton className='btn' onClick={handleNewStockQuery} disabled={role == "common"}>库存查询（新）</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany || role == "common"}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany || role == "common"}>库存盘点</AtButton>
         <AtButton className='btn' onClick={handleStatisticsClick} disabled={!belongToCompany  || role == "common"}>销量统计</AtButton>
