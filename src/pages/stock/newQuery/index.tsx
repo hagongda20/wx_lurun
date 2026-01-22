@@ -43,16 +43,28 @@ export default function StockWxQuery() {
     }
   }
 
-  /* ================== 规格开关 ================== */
+  /* ================== 规格开关（⭐已修正） ================== */
   const toggleSpec = (code: string, value: boolean) => {
     setSpecEnabledMap(prev => ({
       ...prev,
       [code]: value
     }))
+
+    // ⭐ 关闭时：立即清空该规格所有选中值
+    if (!value) {
+      setSpecValueMap(prev => ({
+        ...prev,
+        [code]: []
+      }))
+    }
   }
 
   /* ================== 规格值点击 ================== */
-  const onSpecClick = (code: string, value: string, mode: 'single' | 'multiple') => {
+  const onSpecClick = (
+    code: string,
+    value: string,
+    mode: 'single' | 'multiple'
+  ) => {
     if (!specEnabledMap[code]) return
 
     setSpecValueMap(prev => {
@@ -62,7 +74,9 @@ export default function StockWxQuery() {
       if (mode === 'single') {
         next = old[0] === value ? [] : [value]
       } else {
-        next = old.includes(value) ? old.filter(v => v !== value) : [...old, value]
+        next = old.includes(value)
+          ? old.filter(v => v !== value)
+          : [...old, value]
       }
 
       return { ...prev, [code]: next }
@@ -72,12 +86,14 @@ export default function StockWxQuery() {
   /* ================== 构造查询参数 ================== */
   const buildSpecPayload = () => {
     const payload: any = {}
+
     Object.keys(specEnabledMap).forEach(code => {
       payload[code] = {
         enabled: specEnabledMap[code],
         values: specValueMap[code] || []
       }
     })
+
     return payload
   }
 
@@ -113,10 +129,11 @@ export default function StockWxQuery() {
     setLoading(false)
   }
 
-  /* ================== 重置所有规格 ================== */
+  /* ================== 重置 ================== */
   const resetAll = () => {
     const enabledReset: Record<string, boolean> = {}
     const valueReset: Record<string, string[]> = {}
+
     specList.forEach(cat => {
       enabledReset[cat.code] = true
       valueReset[cat.code] = []
@@ -134,16 +151,14 @@ export default function StockWxQuery() {
     doSearch()
   })
 
-  /* ================== 渲染 ================== */
+  /* ================== 渲染（UI 未改） ================== */
   return (
     <View className="wx-stock-page">
-      {/* 规格面板 */}
       <View className="spec-panel">
         {specList.map(cat => {
           const enabled = specEnabledMap[cat.code]
           return (
             <View key={cat.code} className="spec-row">
-              {/* 开关 */}
               <Switch
                 className="spec-switch"
                 checked={enabled}
@@ -151,15 +166,18 @@ export default function StockWxQuery() {
                 color="#6190E8"
               />
 
-              {/* 规格值 */}
               <View className={`spec-values ${!enabled ? 'disabled' : ''}`}>
                 {cat.options.map(opt => {
-                  const active = specValueMap[cat.code]?.includes(opt.value)
+                  const active =
+                    specValueMap[cat.code]?.includes(opt.value)
+
                   return (
                     <View
                       key={opt.id}
                       className={`spec-tag ${active ? 'active' : ''} ${cat.select_mode}`}
-                      onClick={() => onSpecClick(cat.code, opt.value, cat.select_mode)}
+                      onClick={() =>
+                        onSpecClick(cat.code, opt.value, cat.select_mode)
+                      }
                     >
                       <Text>{opt.value}</Text>
                     </View>
@@ -171,7 +189,6 @@ export default function StockWxQuery() {
         })}
       </View>
 
-      {/* 操作栏 */}
       <View className="action-bar">
         <AtButton size="small" onClick={resetAll}>
           重置
@@ -181,7 +198,6 @@ export default function StockWxQuery() {
         </AtButton>
       </View>
 
-      {/* 查询结果 */}
       <View className="inventory-list">
         {list.map(product => (
           <View key={product.product_id} className="inventory-item">
