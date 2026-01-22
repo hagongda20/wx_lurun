@@ -1,10 +1,8 @@
 import Taro, { useReachBottom } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { AtButton } from 'taro-ui'
 import './index.scss'
-
-const API_BASE = 'http://101.42.250.129:12345/api/inventory'
 
 export default function StockWxQuery() {
   /* ================== 状态 ================== */
@@ -21,13 +19,15 @@ export default function StockWxQuery() {
   }, [])
 
   const fetchSpec = async () => {
-    const res = await Taro.request({
-      url: `${API_BASE}/wx/spec/list`,
-      method: 'GET'
+    const res = await Taro.cloud.callFunction({
+      name: 'inventory',
+      data: {
+        action: 'spec_list'
+      }
     })
 
-    if (res.data?.success) {
-      setSpecList(res.data.data || [])
+    if (res.result?.success) {
+      setSpecList(res.result.data || [])
     }
   }
 
@@ -64,18 +64,19 @@ export default function StockWxQuery() {
     setLoading(true)
     const currentPage = reset ? 1 : page
 
-    const res = await Taro.request({
-      url: `${API_BASE}/inventory/wx_query`,
-      method: 'POST',
+    const res = await Taro.cloud.callFunction({
+      name: 'inventory',
       data: {
+        action: 'wx_query',
         spec: specValueMap,
         page: currentPage,
         page_size: 20
       }
     })
 
-    if (res.data?.success) {
-      const data = res.data.data
+    if (res.result?.success) {
+      const data = res.result.data
+
       setList(reset ? data.list : [...list, ...data.list])
       setHasMore(data.has_more)
       setPage(currentPage + 1)
@@ -168,14 +169,12 @@ export default function StockWxQuery() {
                 </Text>
               </View>
 
-              {/* 公司库存行 */}
+              {/* 公司库存 */}
               {product.companies.map((c, idx) => (
                 <View key={idx} className='company-line'>
                   <Text>{c.company_name}</Text>
                   <Text>{c.display_name}</Text>
-                  <Text className='qty'>
-                    {c.quantity}
-                  </Text>
+                  <Text className='qty'>{c.quantity}</Text>
                 </View>
               ))}
             </View>
