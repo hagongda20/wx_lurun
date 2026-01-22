@@ -3,11 +3,10 @@ const http = require('http')
 const { URL } = require('url')
 
 /* ======================
- * Flask 后端地址（只改这里）
+ * Flask 后端地址
  * ====================== */
-const BASE_URL = 'http://101.42.250.129:12345/api'  
-// ⚠️ 必须是 http（云函数可以访问，小程序不行）
-// ⚠️ 不要以 / 结尾
+const BASE_URL = 'http://101.42.250.129:12345/api' // ⚠️ 不要以 / 结尾
+// ⚠️ 必须 http（云函数限制）
 
 /* ======================
  * HTTP 请求工具
@@ -42,9 +41,7 @@ function request({ url, method = 'GET', body = {}, headers = {} }) {
       })
     })
 
-    req.on('error', err => {
-      reject(err)
-    })
+    req.on('error', err => reject(err))
 
     if (method !== 'GET') {
       req.write(JSON.stringify(body))
@@ -61,7 +58,9 @@ exports.main = async (event, context) => {
   const { action } = event
 
   try {
-    /* ---------- 1️⃣ 查询规格 ---------- */
+    /* =====================================================
+     * 1️⃣ 查询规格列表（微信端）
+     * ===================================================== */
     if (action === 'spec_list') {
       const res = await request({
         url: `${BASE_URL}/inventory/wx/spec/list`,
@@ -74,22 +73,27 @@ exports.main = async (event, context) => {
       }
     }
 
-    /* ---------- 2️⃣ 查询库存 ---------- */
+    /* =====================================================
+     * 2️⃣ 微信库存查询（支持每个规格开关）
+     * ===================================================== */
     if (action === 'wx_query') {
       const {
-        spec = {},
         page = 1,
-        page_size = 20
+        page_size = 20,
+        spec = {} // ⚠️ 每个规格必须包含 enabled + values
       } = event
+
+      // 🔹 构造传给 Flask 的 body
+      const body = {
+        page,
+        page_size,
+        spec
+      }
 
       const res = await request({
         url: `${BASE_URL}/inventory/inventory/wx_query`,
         method: 'POST',
-        body: {
-          spec,
-          page,
-          page_size
-        }
+        body
       })
 
       return {
@@ -98,15 +102,18 @@ exports.main = async (event, context) => {
       }
     }
 
-    /* ---------- 未识别 action ---------- */
+    /* =====================================================
+     * 未识别 action
+     * ===================================================== */
     return {
       success: false,
       msg: 'unknown action'
     }
   } catch (err) {
+    console.error('云函数 inventory 错误:', err)
     return {
       success: false,
-      error: err.message
+      error: err.message || 'cloud function error'
     }
   }
 }

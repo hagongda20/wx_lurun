@@ -21,11 +21,32 @@
   margin-bottom: 16rpx;
 }
 
+/* 一行：开关 + 规格 */
+.spec-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.spec-switch {
+  transform: scale(0.85);
+  flex-shrink: 0;
+}
+
 .spec-values {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1;
   gap: 16rpx;
+  flex-wrap: wrap;
 }
+
+.spec-values.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+
 
 .spec-tag {
   padding: 10rpx 26rpx;
