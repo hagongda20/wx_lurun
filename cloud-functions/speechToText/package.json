@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.15.4",
+    "tencentcloud-sdk-nodejs": "latest",
+    "wx-server-sdk": "latest"
+  }
+}
