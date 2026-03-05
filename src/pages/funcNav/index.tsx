@@ -59,15 +59,24 @@ const Home = () => {
     });
   };
 
+  const handleVoiceQuery = () => {
+    Taro.navigateTo({
+      url: '/pages/stock/voiceQuery/index'
+    });
+  };
+
   return (
     <View className='home'>
       <View className='btn-container'>
         <AtButton className='btn' onClick={handleInventoryClick} disabled={!belongToCompany && role == "common"}>库存查询</AtButton>
-        <AtButton className='btn' onClick={handleNewStockQuery} disabled={role == "common"}>库存查询（新）</AtButton>
         <AtButton className='btn' onClick={handleStockOperationClick} disabled={!belongToCompany || role == "common"}>库存流水</AtButton>
         <AtButton className='btn' onClick={handleProductClick} disabled={!belongToCompany || role == "common"}>库存盘点</AtButton>
         <AtButton className='btn' onClick={handleStatisticsClick} disabled={!belongToCompany  || role == "common"}>销量统计</AtButton>
         <AtButton className='btn' onClick={handleManyOut} disabled={!belongToCompany || role!="会计"}>批量出库</AtButton>
+        <View className='divider' />
+        <AtButton className='btn' onClick={handleNewStockQuery} >库存查询（新）</AtButton>
+        
+        <AtButton className='btn' onClick={handleVoiceQuery} disabled={role == "common"}>语音查库</AtButton>  
 
         <View className='divider' />
         <AtButton className='btn' onClick={handleBlankClick} disabled={!belongToCompany && role == "common"}>坯板查询</AtButton>
